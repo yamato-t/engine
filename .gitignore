@@ -48,3 +48,8 @@ Thumbs.db
 *.mov
 *.wmv
 
+# project
+.vs/
+*.vcxproj.user
+x64/
+Win32/
