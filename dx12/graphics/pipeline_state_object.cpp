@@ -37,7 +37,7 @@ namespace dx12::graphics {
 	bool PipelineStateObject::createPipelineState() noexcept {
 
 		// とりあえずここでシェーダを作成する
-		shader_ = std::make_unique<Shader>("../../asset/color.hlsl");
+		shader_ = std::make_unique<Shader>("../asset/color.hlsl");
 
 		// 頂点レイアウト
 		D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
