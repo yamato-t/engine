@@ -2,11 +2,15 @@
 #include "utility/thread.h"
 #include "input/input.h"
 
+#include "../imgui/imgui_impl_win32.h"
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 namespace window {
 
 	namespace {
 		constexpr uint32_t windowWidth = 1280;
-		constexpr uint32_t windowHeight = 720;
+		constexpr uint32_t windowHeight =720;
 		constexpr const char* appName = "ブログネタ";
 
 		//---------------------------------------------------------------------------------
@@ -123,7 +127,7 @@ namespace window {
 			if (!windowHandle_) { return E_FAIL; }
 
 			//ウインドウの表示
-			ShowWindow(windowHandle_, SW_SHOW);
+			ShowWindow(windowHandle_, SW_SHOWDEFAULT);
 			UpdateWindow(windowHandle_);
 
 			// ウィンドウ作成終了イベントシグナルを設定
@@ -185,6 +189,11 @@ namespace window {
 	 * @brief	ウィンドウプロシージャ
 	 */
 	LRESULT Window::msgProc(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam) {
+
+		if (ImGui_ImplWin32_WndProcHandler(handle, msg, wParam, lParam)) {
+			return true;
+		}
+
 		switch (msg) {
 		case WM_KEYDOWN:
 			switch ((char)wParam) {

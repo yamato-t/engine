@@ -1,5 +1,4 @@
 ﻿#include "dx12/device.h"
-#include "window/window.h"
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxguid.lib")
