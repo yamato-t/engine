@@ -79,12 +79,17 @@ namespace dx12 {
 
 			DXGI_SWAP_CHAIN_DESC1 desc	= {};
 			desc.BufferCount			= frameBufferNum_;
-			desc.Width					= window::width();
-			desc.Height					= window::Height();
+			desc.Width					= 0;
+			desc.Height					= 0;
 			desc.Format					= DXGI_FORMAT_R8G8B8A8_UNORM;
 			desc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
 			desc.SwapEffect				= DXGI_SWAP_EFFECT_FLIP_DISCARD;
 			desc.SampleDesc.Count		= 1;
+			desc.SampleDesc.Quality		= 0;
+			desc.AlphaMode				= DXGI_ALPHA_MODE_UNSPECIFIED;
+			desc.Scaling				= DXGI_SCALING_STRETCH;
+			desc.Stereo					= false;
+
 
 			auto res = Device::instance().dxgiFactory()->CreateSwapChainForHwnd(
 				commandQueue.get(),
