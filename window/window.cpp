@@ -11,7 +11,7 @@ namespace window {
 	namespace {
 		constexpr uint32_t windowWidth = 1280;
 		constexpr uint32_t windowHeight =720;
-		constexpr const char* appName = "ブログネタ";
+		constexpr const char* appName = u8"テストWinアプリケーション";
 
 		//---------------------------------------------------------------------------------
 		/**
