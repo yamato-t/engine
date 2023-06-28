@@ -98,5 +98,5 @@ namespace utility
 	}
 }
 
-#define TO_HASH(key) utility::getHash<utility::stringToHash<key>()>()
-#define TO_HASH_F(key) [](){ constexpr h = utility::stringToHash<key>(); return h; }()
+#define TO_HASH(key) utility::getHash<utility::stringToHash(key)>()
+#define TO_HASH_F(key) [](){ constexpr auto h = utility::stringToHash(key); return h; }()
