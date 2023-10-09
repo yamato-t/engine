@@ -2,6 +2,7 @@
 
 #include "dx12/device.h"
 #include "dx12/command_list.h"
+#include "dx12/descriptor_heap.h"
 
 #include "utility/noncopyable.h"
 
@@ -38,11 +39,19 @@ namespace dx12::resource {
 
 		//---------------------------------------------------------------------------------
 		/**
-		 * @brief	コマンドリストに設定する
-		 * @param	commandList		設定先のコマンドリスト
-		 * @param	index			コンスタントバッファのインデックス
+		 * @brief	ディスクリプタヒープに登録する
+		 * @param	descriptorHeap			登録先のヒープ
 		 */
-		void setToCommandList(CommandList& commandList, uint32_t index) noexcept;
+		void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept;
+
+		//---------------------------------------------------------------------------------
+		/**
+		 * @brief	コマンドリストに設定する
+		 * @param	commandList				設定先のコマンドリスト
+		 * @param	index					コンスタントバッファのインデックス
+		 * @param	descriptorTableIndex	ディスクリプタテーブルのインデックス
+		 */
+		void setToCommandList(CommandList& commandList, uint32_t index, uint32_t descriptorTableIndex) noexcept;
 
 		//---------------------------------------------------------------------------------
 		/**
@@ -52,13 +61,11 @@ namespace dx12::resource {
 		 */
 		uint64_t offset(uint32_t index) const noexcept;
 
-
 	private:
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>	heap_			= {};	///< ヒープ
-		Microsoft::WRL::ComPtr<ID3D12Resource>			gpuResource_	= {};	///< リソース
-		uint32_t										stride_			= {};	///< バッファのストライド
-		uint32_t										num_			= {};	///< バッファ数
-
+		Microsoft::WRL::ComPtr<ID3D12Resource>			gpuResource_{};		///< リソース
+		uint32_t										stride_{};			///< バッファのストライド
+		uint32_t										num_{};				///< バッファ数
+		DescriptorHeap::RegisterHandle					handle_{};			///< ヒープ登録ハンドル
 	};
 
 	//---------------------------------------------------------------------------------
@@ -96,12 +103,22 @@ namespace dx12::resource {
 
 		//---------------------------------------------------------------------------------
 		/**
-		 * @brief	コマンドリストに設定する
-		 * @param	commandList		設定先のコマンドリスト
-		 * @param	index			コンスタントバッファのインデックス
+		 * @brief	ディスクリプタヒープに登録する
+		 * @param	descriptorHeap			登録先のヒープ
 		 */
-		void setToCommandList(CommandList& commandList, uint32_t index) noexcept {
-			resource_->setToCommandList(commandList, index);
+		void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept {
+			resource_->registerToDescriptorHeap(descriptorHeap);
+		}
+
+		//---------------------------------------------------------------------------------
+		/**
+		 * @brief	コマンドリストに設定する
+		 * @param	commandList				設定先のコマンドリスト
+		 * @param	index					コンスタントバッファのインデックス
+		 * @param	descriptorTableIndex	ディスクリプタテーブルのインデックス
+		 */
+		void setToCommandList(CommandList& commandList, uint32_t index, uint32_t descriptorTableIndex) noexcept {
+			resource_->setToCommandList(commandList, index, descriptorTableIndex);
 		}
 
 		//---------------------------------------------------------------------------------

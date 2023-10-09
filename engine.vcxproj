@@ -162,6 +162,7 @@
     <ClInclude Include="def.h" />
     <ClInclude Include="dx12\command_list.h" />
     <ClInclude Include="dx12\command_queue.h" />
+    <ClInclude Include="dx12\descriptor_heap.h" />
     <ClInclude Include="dx12\device.h" />
     <ClInclude Include="dx12\fence.h" />
     <ClInclude Include="dx12\graphics\pipeline_state_object.h" />
@@ -181,6 +182,7 @@
   <ItemGroup>
     <ClCompile Include="dx12\command_list.cpp" />
     <ClCompile Include="dx12\command_queue.cpp" />
+    <ClCompile Include="dx12\descriptor_heap.cpp" />
     <ClCompile Include="dx12\device.cpp" />
     <ClCompile Include="dx12\fence.cpp" />
     <ClCompile Include="dx12\graphics\pipeline_state_object.cpp" />

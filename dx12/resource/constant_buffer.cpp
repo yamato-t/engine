@@ -21,15 +21,6 @@ namespace dx12::resource {
 	 */
 	bool ConstantBufferResource::create(void* data, uint32_t stride, uint32_t num) noexcept
 	{
-		// コンスタントバッファ用ディスクリプタヒープ作成
-		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-		heapDesc.Type						= D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;	// このヒープはコンスタントバッファのビュー（CBV）として利用する
-		heapDesc.NumDescriptors				= num;									
-		heapDesc.Flags						= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		dx12::Device::instance().device()->CreateDescriptorHeap(
-			&heapDesc,
-			IID_PPV_ARGS(heap_.GetAddressOf()));
-
 		// GPUリソース作成
 		D3D12_HEAP_PROPERTIES heapProperty = {};
 		heapProperty.Type					= D3D12_HEAP_TYPE_UPLOAD;
@@ -63,17 +54,6 @@ namespace dx12::resource {
 			return false;
 		}
 
-		for (auto i = 0; i < num; ++i) {
-			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-			cbvDesc.BufferLocation	= gpuResource_->GetGPUVirtualAddress() + i * ALIGN(stride);
-			cbvDesc.SizeInBytes		= ALIGN(stride);
-
-			auto size	= dx12::Device::instance().device()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-			auto handle = heap_->GetCPUDescriptorHandleForHeapStart();
-			handle.ptr += i * size;
-			dx12::Device::instance().device()->CreateConstantBufferView(&cbvDesc, handle);
-		}
-
 		gpuResource_->Map(0, nullptr, reinterpret_cast<void**>(data));
 
 		stride_ = stride;
@@ -85,22 +65,39 @@ namespace dx12::resource {
 
 	//---------------------------------------------------------------------------------
 	/**
-	 * @brief	コマンドリストに設定する
-	 * @param	commandList		設定先のコマンドリスト
-	 * @param	index			コンスタントバッファのインデックス
+	 * @brief	ディスクリプタヒープに登録する
+	 * @param	descriptorHeap			登録先のヒープ
 	 */
-	void ConstantBufferResource::setToCommandList(dx12::CommandList& commandList, uint32_t index) noexcept {
-		// ヒープの設定
-		ID3D12DescriptorHeap* p[] = { heap_.Get() };
-		commandList.get()->SetDescriptorHeaps(_countof(p), p);
+	void ConstantBufferResource::registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept {
 
-		// コンスタントバッファビューの設定
-		auto size	= dx12::Device::instance().device()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		auto handle = heap_->GetGPUDescriptorHandleForHeapStart();
-		handle.ptr += index * size;
-		commandList.get()->SetGraphicsRootDescriptorTable(0, handle);
+		// ヒープ登録ハンドルを取得する
+		handle_ = descriptorHeap.registerBuffer(num_);
+
+		for (auto i = 0; i < num_; ++i) {
+			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+			cbvDesc.BufferLocation = gpuResource_->GetGPUVirtualAddress() + i * ALIGN(stride_);
+			cbvDesc.SizeInBytes = ALIGN(stride_);
+
+			D3D12_CPU_DESCRIPTOR_HANDLE handle{};
+			handle.ptr = handle_.cpuHandle_ + (i * handle_.incrementSize_);
+			dx12::Device::instance().device()->CreateConstantBufferView(&cbvDesc, handle);
+		}
 	}
 
+
+	//---------------------------------------------------------------------------------
+	/**
+	 * @brief	コマンドリストに設定する
+	 * @param	commandList				設定先のコマンドリスト
+	 * @param	index					コンスタントバッファのインデックス
+	 * @param	descriptorTableIndex	ディスクリプタテーブルのインデックス
+	 */
+	void ConstantBufferResource::setToCommandList(dx12::CommandList& commandList, uint32_t index, uint32_t descriptorTableIndex) noexcept {
+
+		D3D12_GPU_DESCRIPTOR_HANDLE handle{};
+		handle.ptr = handle_.gpuHandle_ + (index * handle_.incrementSize_);
+		commandList.get()->SetGraphicsRootDescriptorTable(descriptorTableIndex, handle);
+	}
 
 	//---------------------------------------------------------------------------------
 	/**
