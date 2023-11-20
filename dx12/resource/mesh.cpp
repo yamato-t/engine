@@ -57,6 +57,8 @@ namespace dx12::resource {
 		view_.StrideInBytes	 = stride;
 		view_.SizeInBytes	 = stride * num;
 
+		num_ = num;
+
 		return true;
 	}
 
@@ -126,6 +128,8 @@ namespace dx12::resource {
 		view_.Format			= stride == 4 ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
 		view_.SizeInBytes		= stride * num;
 
+		num_ = num;
+
 		return true;
 	}
 
@@ -139,6 +143,16 @@ namespace dx12::resource {
 		// インデックスバッファをセット
 		commandList.get()->IASetIndexBuffer(&view_);
 	}
+
+	//---------------------------------------------------------------------------------
+	/**
+	 * @brief	インデックスバッファの要素数を取得する
+	 * @return	要素数
+	 */
+	uint32_t IndexBufferResource::getNum() const noexcept {
+		return num_;
+	}
+
 
 }
 

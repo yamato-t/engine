@@ -41,13 +41,13 @@ namespace dx12::graphics {
 
 		// 頂点レイアウト
 		D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 0,	D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		0, 12,	D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		};
 
 		// ラスタライザステート
 		D3D12_RASTERIZER_DESC rasterizerDesc	= {};
-		rasterizerDesc.FillMode					= D3D12_FILL_MODE_SOLID;
+		rasterizerDesc.FillMode					= D3D12_FILL_MODE_WIREFRAME;
 		rasterizerDesc.CullMode					= D3D12_CULL_MODE_BACK;
 		rasterizerDesc.FrontCounterClockwise	= false;
 		rasterizerDesc.DepthBias				= D3D12_DEFAULT_DEPTH_BIAS;
@@ -108,10 +108,10 @@ namespace dx12::graphics {
 
 		// コンスタントバッファ( b0 )
 		D3D12_DESCRIPTOR_RANGE r0 = {};
-		r0.RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+		r0.RangeType						= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		r0.NumDescriptors					= 1;
 		r0.BaseShaderRegister				= 0;
-		r0.RegisterSpace						= 0;
+		r0.RegisterSpace					= 0;
 		r0.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 		// コンスタントバッファ( b1 )

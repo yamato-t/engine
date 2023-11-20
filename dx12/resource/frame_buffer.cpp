@@ -5,7 +5,7 @@
 namespace dx12::resource {
 
 	namespace {
-		constexpr float	clearColor[] = { 0.0f, 0.0f, 1.0f, 1.0f };	///< 画面をクリアする際の色
+		constexpr float	clearColor[] = { 0.5f, 0.5f, 0.5f, 1.0f };	///< 画面をクリアする際の色
 	}
 
 	namespace {

@@ -85,6 +85,13 @@ namespace dx12::resource {
 		 */
 		void setToCommandList(dx12::CommandList& commandList) noexcept;
 
+		//---------------------------------------------------------------------------------
+		/**
+		 * @brief	インデックスバッファの要素数を取得する
+		 * @return	要素数
+		 */
+		uint32_t getNum() const noexcept;
+
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource>	gpuResource_	= {};	///< インデックスバッファリソース
 		D3D12_INDEX_BUFFER_VIEW					view_			= {};	///< インデックスバッファビュー
@@ -127,13 +134,37 @@ namespace dx12::resource {
 
 		//---------------------------------------------------------------------------------
 		/**
+		 * @brief	頂点バッファを作成する
+		 * @param	data		データの先頭アドレス
+		 * @param	num			データ数
+		 */
+		template<class vertexFormat>
+		void createVertexBuffer(vertexFormat* data, uint32_t num) noexcept {
+			vertexBufferResource_->create(reinterpret_cast<void*>(data), sizeof(vertexFormat), num);
+		}
+
+
+		//---------------------------------------------------------------------------------
+		/**
 		 * @brief	インデックスバッファを作成する
 		 * @param	data		データの先頭アドレス
 		 */
 		template<class indexFormat, uint32_t Num>
-		void createIndexBuffer(indexFormat	(&data)[Num]) noexcept {
+		void createIndexBuffer(indexFormat (&data)[Num]) noexcept {
 			indexBufferResource_->create(reinterpret_cast<void*>(data), sizeof(indexFormat), Num);
 		}
+
+		//---------------------------------------------------------------------------------
+		/**
+		 * @brief	インデックスバッファを作成する
+		 * @param	data		データの先頭アドレス
+		 * @param	num			データ数
+		 */
+		template<class indexFormat>
+		void createIndexBuffer(indexFormat* data, uint32_t num) noexcept {
+			indexBufferResource_->create(reinterpret_cast<void*>(data), sizeof(indexFormat), num);
+		}
+
 
 		//---------------------------------------------------------------------------------
 		/**
@@ -144,6 +175,16 @@ namespace dx12::resource {
 			vertexBufferResource_->setToCommandList(commandList);
 			indexBufferResource_->setToCommandList(commandList);
 		}
+
+		//---------------------------------------------------------------------------------
+		/**
+		 * @brief	インデックスバッファの要素数を取得する
+		 * @return 	インデックスバッファの要素数
+		 */
+		uint32_t getIndexBufferNum() const noexcept {
+			return indexBufferResource_->getNum();
+		}
+
 
 	private:
 		std::unique_ptr<VertexBufferResource>	vertexBufferResource_ = {};		///< 頂点バッファリソース

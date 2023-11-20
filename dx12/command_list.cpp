@@ -48,6 +48,11 @@ namespace dx12 {
 	 * @brief	コマンドリストをリセットする
 	 */
 	void CommandList::reset() noexcept {
+
+		if (!commandAllocator_) {
+			return;
+		}
+
 		// コマンドアロケータをリセット
 		commandAllocator_->Reset();
 
