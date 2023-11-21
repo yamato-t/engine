@@ -165,7 +165,9 @@
     <ClInclude Include="dx12\descriptor_heap.h" />
     <ClInclude Include="dx12\device.h" />
     <ClInclude Include="dx12\fence.h" />
+    <ClInclude Include="dx12\graphics\container.h" />
     <ClInclude Include="dx12\graphics\pipeline_state_object.h" />
+    <ClInclude Include="dx12\graphics\root_signature.h" />
     <ClInclude Include="dx12\graphics\shader.h" />
     <ClInclude Include="dx12\resource\constant_buffer.h" />
     <ClInclude Include="dx12\resource\frame_buffer.h" />
@@ -186,6 +188,7 @@
     <ClCompile Include="dx12\device.cpp" />
     <ClCompile Include="dx12\fence.cpp" />
     <ClCompile Include="dx12\graphics\pipeline_state_object.cpp" />
+    <ClCompile Include="dx12\graphics\root_signature.cpp" />
     <ClCompile Include="dx12\graphics\shader.cpp" />
     <ClCompile Include="dx12\resource\constant_buffer.cpp" />
     <ClCompile Include="dx12\resource\frame_buffer.cpp" />
