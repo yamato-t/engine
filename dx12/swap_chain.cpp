@@ -36,7 +36,7 @@ namespace dx12 {
 		 * @param	frameBuffer		フレームバッファ
 		 * @return	正しく作成できた場合は true
 		 */
-		bool create(const CommandQueue& commandQueue, resource::FrameBuffer& frameBuffer) noexcept {
+		bool create(const CommandQueue& commandQueue, resource::RenderTarget& frameBuffer) noexcept {
 
 			frameBufferNum_ = frameBuffer.bufferNum();
 
@@ -112,10 +112,10 @@ namespace dx12 {
 		 * @param	frameBuffer		フレームバッファ
 		 * @return	作成に成功した場合は true
 		 */
-		bool setFrameBuffer(resource::FrameBuffer& frameBuffer) noexcept {
+		bool setFrameBuffer(resource::RenderTarget& frameBuffer) noexcept {
 
-			// スワップチェインが持つバッファを元にフレームバッファの RTV を作成する
-			if (!frameBuffer.createRenderTargetView(swapChain_.Get())) {
+			// スワップチェインが持つバッファを元に RTV を作成する
+			if (!frameBuffer.createView(swapChain_.Get())) {
 				ASSERT(false, "フレームバッファのレンダーターゲットビュー作成に失敗");
 				return false;
 			}
@@ -142,7 +142,7 @@ namespace dx12 {
 	 * @param	frameBuffer		フレームバッファ
 	 * @return	正しく作成できた場合は true
 	 */
-	bool SwapChain::create(const CommandQueue& commandQueue, resource::FrameBuffer& frameBuffer) noexcept {
+	bool SwapChain::create(const CommandQueue& commandQueue, resource::RenderTarget& frameBuffer) noexcept {
 		return impl_->create(commandQueue, frameBuffer);
 	}
 

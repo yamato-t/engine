@@ -72,12 +72,15 @@ bool PipelineStateObject::create() noexcept {
     psoDesc.PS                                 = {shader->pixelShader()->GetBufferPointer(), shader->pixelShader()->GetBufferSize()};
     psoDesc.RasterizerState                    = rasterizerDesc;
     psoDesc.BlendState                         = blendDesc;
-    psoDesc.DepthStencilState.DepthEnable      = false;
+    psoDesc.DepthStencilState.DepthEnable      = true;
     psoDesc.DepthStencilState.StencilEnable    = false;
+    psoDesc.DepthStencilState.DepthWriteMask   = D3D12_DEPTH_WRITE_MASK_ALL;
+    psoDesc.DepthStencilState.DepthFunc        = D3D12_COMPARISON_FUNC_LESS_EQUAL;
     psoDesc.SampleMask                         = UINT_MAX;
     psoDesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     psoDesc.NumRenderTargets                   = 1;
     psoDesc.RTVFormats[0]                      = DXGI_FORMAT_R8G8B8A8_UNORM;
+    psoDesc.DSVFormat                          = DXGI_FORMAT_D24_UNORM_S8_UINT;
     psoDesc.SampleDesc.Count                   = 1;
     auto res                                   = dx12::Device::instance().device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(pipelineState_.GetAddressOf()));
     if (FAILED(res)) {

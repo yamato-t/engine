@@ -36,7 +36,7 @@
     <ClInclude Include="dx12\resource\constant_buffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="dx12\resource\frame_buffer.h">
+    <ClInclude Include="dx12\resource\render_target.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="dx12\resource\mesh.h">
@@ -73,13 +73,13 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="dx12\graphics\root_signature.h">
-      <Filter>ソース ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="dx12\graphics\container.h">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="dx12\resource\depth_stencil.h">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="dx12\graphics\container.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -104,7 +104,7 @@
     <ClCompile Include="dx12\resource\constant_buffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="dx12\resource\frame_buffer.cpp">
+    <ClCompile Include="dx12\resource\render_target.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="dx12\resource\mesh.cpp">

@@ -2,7 +2,7 @@
 
 #include "utility/singleton.h"
 #include "dx12/command_queue.h"
-#include "dx12/resource/frame_buffer.h"
+#include "dx12/resource/render_target.h"
 
 namespace dx12 {
 	//---------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ namespace dx12 {
 		 * @param	frameBuffer		フレームバッファ
 		 * @return	正しく作成できた場合は true
 		 */
-		bool create(const CommandQueue& commandQueue, resource::FrameBuffer& frameBuffer) noexcept;
+		bool create(const CommandQueue& commandQueue, resource::RenderTarget& frameBuffer) noexcept;
 
 		//---------------------------------------------------------------------------------
 		/**

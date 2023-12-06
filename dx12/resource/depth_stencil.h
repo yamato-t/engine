@@ -26,13 +26,20 @@ public:
 
     //---------------------------------------------------------------------------------
     /**
+     * @brief	デプスステンシルビューを取得する
+     * @return	デプスステンシルビュー（ハンドル）
+     */
+    [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE view() noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
      * @brief	デプスステンシルを作成する
      * @return	作成に成功した場合は true
      */
     [[nodiscard]] bool create() noexcept;
 
 private:
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap_{};                ///< ディスクリプタヒープ
-    Microsoft::WRL::ComPtr<ID3D12Resource>       resources_{};           ///< リソース
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap_{};       ///< ディスクリプタヒープ
+    Microsoft::WRL::ComPtr<ID3D12Resource>       resources_{};  ///< リソース
 };
 }  // namespace dx12::resource

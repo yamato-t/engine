@@ -25,7 +25,9 @@ void RootSignature::setToCommandList(CommandList& commandList) noexcept {
  * @brief	ルートシグネチャを取得する
  * @return	ID3D12RootSignature
  */
-ID3D12RootSignature* RootSignature::get() const noexcept { return rootSignature_.Get(); }
+ID3D12RootSignature* RootSignature::get() const noexcept {
+    return rootSignature_.Get();
+}
 
 //---------------------------------------------------------------------------------
 /**
@@ -66,14 +68,14 @@ bool RootSignature::create() noexcept {
     sampler.ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
 
     // ルートパラメータ
-    constexpr auto       paramNum                 = 2;
-    D3D12_ROOT_PARAMETER rootParameters[paramNum] = {};
-    rootParameters[0].ParameterType               = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    rootParameters[0].ShaderVisibility            = D3D12_SHADER_VISIBILITY_VERTEX;
+    constexpr auto       paramNum                         = 2;
+    D3D12_ROOT_PARAMETER rootParameters[paramNum]         = {};
+    rootParameters[0].ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameters[0].ShaderVisibility                    = D3D12_SHADER_VISIBILITY_VERTEX;
     rootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
     rootParameters[0].DescriptorTable.pDescriptorRanges   = &r0;
-    rootParameters[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+    rootParameters[1].ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameters[1].ShaderVisibility                    = D3D12_SHADER_VISIBILITY_VERTEX;
     rootParameters[1].DescriptorTable.NumDescriptorRanges = 1;
     rootParameters[1].DescriptorTable.pDescriptorRanges   = &r1;
 
@@ -83,19 +85,16 @@ bool RootSignature::create() noexcept {
     rootSignatureDesc.pParameters               = rootParameters;
     rootSignatureDesc.NumStaticSamplers         = 1;
     rootSignatureDesc.pStaticSamplers           = &sampler;
-    rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+    rootSignatureDesc.Flags                     = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
     Microsoft::WRL::ComPtr<ID3DBlob> signature;
     Microsoft::WRL::ComPtr<ID3DBlob> error;
-    auto res = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-                                           signature.GetAddressOf(), error.GetAddressOf());
+    auto                             res = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, signature.GetAddressOf(), error.GetAddressOf());
     if (FAILED(res)) {
         ASSERT(false, "ルートシグネチャのシリアライズに失敗");
         return false;
     }
 
-    res = dx12::Device::instance().device()->CreateRootSignature(
-        0, signature->GetBufferPointer(), signature->GetBufferSize(),
-        IID_PPV_ARGS(rootSignature_.GetAddressOf()));
+    res = dx12::Device::instance().device()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(rootSignature_.GetAddressOf()));
     if (FAILED(res)) {
         ASSERT(false, "ルートシグネチャの生成に失敗");
         return false;

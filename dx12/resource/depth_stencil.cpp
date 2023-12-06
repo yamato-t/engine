@@ -4,6 +4,16 @@
 
 namespace dx12::resource {
 
+
+//---------------------------------------------------------------------------------
+/**
+ * @brief	デプスステンシルビューを取得する
+ * @return	デプスステンシルビュー（ハンドル）
+ */
+D3D12_CPU_DESCRIPTOR_HANDLE DepthStencil::view() noexcept {
+    return heap_->GetCPUDescriptorHandleForHeapStart();
+}
+
 //---------------------------------------------------------------------------------
 /**
  * @brief	デプスステンシルを作成する
@@ -53,7 +63,7 @@ bool DepthStencil::create() noexcept {
         return false;
     }
 
-    //ディスクリプタを作成
+    // ディスクリプタを作成
     D3D12_CPU_DESCRIPTOR_HANDLE handle = heap_->GetCPUDescriptorHandleForHeapStart();
     dx12::Device::instance().device()->CreateDepthStencilView(resources_.Get(), nullptr, handle);
 
