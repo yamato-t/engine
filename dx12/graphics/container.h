@@ -12,9 +12,7 @@ template <class T>
 class Container final : public utility::Noncopyable {
 private:
     Container()                                 = default;
-    Container(const Container<T>& c)            = delete;
     Container(Container<T>&& c)                 = delete;
-    Container& operator=(const Container<T>& c) = delete;
     Container& operator=(Container<T>&& c)      = delete;
 
 public:

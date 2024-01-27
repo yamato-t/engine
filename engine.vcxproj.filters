@@ -137,5 +137,8 @@
     <ClCompile Include="dx12\resource\depth_stencil.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="utility\crc32.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

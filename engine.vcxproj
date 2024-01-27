@@ -197,6 +197,7 @@
     <ClCompile Include="dx12\resource\mesh.cpp" />
     <ClCompile Include="dx12\swap_chain.cpp" />
     <ClCompile Include="input\input.cpp" />
+    <ClCompile Include="utility\crc32.cpp" />
     <ClCompile Include="utility\log.cpp" />
     <ClCompile Include="utility\thread.cpp" />
     <ClCompile Include="utility\time_counter.cpp" />
