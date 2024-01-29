@@ -81,6 +81,9 @@
     <ClInclude Include="dx12\graphics\container.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="dx12\resource\texture.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dx12\command_list.cpp">
@@ -138,6 +141,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="utility\crc32.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="dx12\resource\texture.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

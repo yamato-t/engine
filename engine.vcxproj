@@ -173,6 +173,7 @@
     <ClInclude Include="dx12\resource\depth_stencil.h" />
     <ClInclude Include="dx12\resource\render_target.h" />
     <ClInclude Include="dx12\resource\mesh.h" />
+    <ClInclude Include="dx12\resource\texture.h" />
     <ClInclude Include="dx12\swap_chain.h" />
     <ClInclude Include="input\input.h" />
     <ClInclude Include="utility\log.h" />
@@ -195,6 +196,7 @@
     <ClCompile Include="dx12\resource\depth_stencil.cpp" />
     <ClCompile Include="dx12\resource\render_target.cpp" />
     <ClCompile Include="dx12\resource\mesh.cpp" />
+    <ClCompile Include="dx12\resource\texture.cpp" />
     <ClCompile Include="dx12\swap_chain.cpp" />
     <ClCompile Include="input\input.cpp" />
     <ClCompile Include="utility\crc32.cpp" />
