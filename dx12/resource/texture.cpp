@@ -1,4 +1,6 @@
 ﻿#include "dx12/resource/texture.h"
+#include "dx12/command_queue.h"
+#include "dx12/fence.h"
 #include "../file_loader/texture/WICTextureLoader12.h"
 #include "../file_loader/texture/d3dx12.h"
 
@@ -19,15 +21,17 @@ D3D12_CPU_DESCRIPTOR_HANDLE Texture::view() noexcept {
  * @param	path ファイルパス
  * @return	作成に成功した場合は true
  */
-bool Texture::loadFromFile(std::string_view path, const dx12::CommandList& uploadCommandList) noexcept {
-    D3D12_SUBRESOURCE_DATA subRes{};
+bool Texture::loadFromFile(std::string_view path) noexcept {
+    D3D12_SUBRESOURCE_DATA     subRes{};
+    std::unique_ptr<uint8_t[]> decodedData{};
+
     // ファイル読み込み
     {
-        std::unique_ptr<uint8_t[]> decodedData{};
-        auto                       temp = std::wstring(path.begin(), path.end());
+        auto temp = std::wstring(path.begin(), path.end());
 
         // D3D12_RESOURCE_STATE_COPY_DEST の CreateCommittedResource は LoadWICTextureFromFile 内で処理されている
-        auto res = DirectX::LoadWICTextureFromFile(Device::instance().device(), temp.data(), resources_.GetAddressOf(), decodedData, subRes);
+        auto res = DirectX::LoadWICTextureFromFile(Device::instance().device(), temp.data(),
+                                                   resources_.GetAddressOf(), decodedData, subRes);
         if (FAILED(res)) {
             ASSERT(false, "テクスチャ読み込みと生成に失敗");
         }
@@ -37,15 +41,38 @@ bool Texture::loadFromFile(std::string_view path, const dx12::CommandList& uploa
 
     // GPU への転送
     {
+        CommandList  uploadCommandList{};
+        CommandQueue commandQueue{};
+        Fence        fence{};
+
+        uploadCommandList.create();
+        commandQueue.create();
+        fence.create();
+
         Microsoft::WRL::ComPtr<ID3D12Resource> stagingTexture;
 
         auto   bufferSize = GetRequiredIntermediateSize(resources_.Get(), 0, 1);
         auto&& upload     = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
         auto&& buffer     = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
-        Device::instance().device()->CreateCommittedResource(&upload, D3D12_HEAP_FLAG_NONE, &buffer, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(stagingTexture.GetAddressOf()));
+        Device::instance().device()->CreateCommittedResource(&upload, D3D12_HEAP_FLAG_NONE, &buffer,
+                                                             D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                                                             IID_PPV_ARGS(stagingTexture.GetAddressOf()));
+
+        uploadCommandList.reset();
         UpdateSubresources(uploadCommandList.get(), resources_.Get(), stagingTexture.Get(), 0, 0, 1, &subRes);
         auto&& barrier = CD3DX12_RESOURCE_BARRIER::Transition(resources_.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         uploadCommandList.get()->ResourceBarrier(1, &barrier);
+        uploadCommandList.get()->Close();
+        std::array<ID3D12CommandList*, 1> lists = {uploadCommandList.get()};
+        commandQueue.get()->ExecuteCommandLists(1, static_cast<ID3D12CommandList**>(lists.data()));
+
+        fence.get()->Signal(0);
+        commandQueue.get()->Signal(fence.get(), 1);
+
+        auto event = CreateEvent(nullptr, false, false, "WAIT_GPU");
+        fence.get()->SetEventOnCompletion(1, event);
+        WaitForSingleObject(event, INFINITE);
+        CloseHandle(event);
     }
 
     // ビューの生成

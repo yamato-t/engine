@@ -36,10 +36,9 @@ public:
     /**
      * @brief	テクスチャをファイルから読み込む
      * @param	path				ファイルパス
-	 * @param	uploadCommandList	GPU転送用コマンドリスト
 	 * @return	成功した場合は true
      */
-    [[nodiscard]] bool loadFromFile(std::string_view path, const dx12::CommandList& uploadCommandList) noexcept;
+    [[nodiscard]] bool loadFromFile(std::string_view path) noexcept;
 
     //---------------------------------------------------------------------------------
     /**
