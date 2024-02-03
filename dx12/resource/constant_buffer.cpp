@@ -79,14 +79,14 @@ void ConstantBufferResource::registerToDescriptorHeap(DescriptorHeap& descriptor
 //---------------------------------------------------------------------------------
 /**
  * @brief	コマンドリストに設定する
- * @param	commandList				設定先のコマンドリスト
- * @param	index					コンスタントバッファのインデックス
- * @param	descriptorTableIndex	ディスクリプタテーブルのインデックス
+ * @param	commandList			設定先のコマンドリスト
+ * @param	index				コンスタントバッファのインデックス
+ * @param	rootParameterIndex	ルートパラメータのインデックス
  */
-void ConstantBufferResource::setToCommandList(dx12::CommandList& commandList, uint32_t index, uint32_t descriptorTableIndex) noexcept {
+void ConstantBufferResource::setToCommandList(dx12::CommandList& commandList, uint32_t index, uint32_t rootParameterIndex) noexcept {
     D3D12_GPU_DESCRIPTOR_HANDLE handle{};
     handle.ptr = handle_.gpuHandle_ + (index * handle_.incrementSize_);
-    commandList.get()->SetGraphicsRootDescriptorTable(descriptorTableIndex, handle);
+    commandList.get()->SetGraphicsRootDescriptorTable(rootParameterIndex, handle);
 }
 
 //---------------------------------------------------------------------------------

@@ -17,6 +17,38 @@ D3D12_CPU_DESCRIPTOR_HANDLE Texture::view() noexcept {
 
 //---------------------------------------------------------------------------------
 /**
+ * @brief	ディスクリプタヒープに登録する
+ * @param	descriptorHeap			登録先のヒープ
+ */
+void Texture::registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept {
+    // ヒープ登録ハンドルを取得する
+    handle_ = descriptorHeap.registerBuffer(1);
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC sdesc = {};
+    sdesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    sdesc.Format                          = resourcesDesc_.Format;
+    sdesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
+    sdesc.Texture2D.MipLevels             = resourcesDesc_.MipLevels;  // 1;
+
+    D3D12_CPU_DESCRIPTOR_HANDLE handle{};
+    handle.ptr = handle_.cpuHandle_;
+    Device::instance().device()->CreateShaderResourceView(resources_.Get(), &sdesc, handle);
+}
+
+//---------------------------------------------------------------------------------
+/**
+ * @brief	コマンドリストに設定する
+ * @param	commandList				設定先のコマンドリスト
+ * @param	rootParameterIndex		ルートパラメータのインデックス
+ */
+void Texture::setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept {
+    D3D12_GPU_DESCRIPTOR_HANDLE handle{};
+    handle.ptr = handle_.gpuHandle_;
+    commandList.get()->SetGraphicsRootDescriptorTable(rootParameterIndex, handle);
+}
+
+//---------------------------------------------------------------------------------
+/**
  * @brief	テクスチャをファイルから作成する
  * @param	path ファイルパス
  * @return	作成に成功した場合は true
@@ -75,42 +107,8 @@ bool Texture::loadFromFile(std::string_view path) noexcept {
         CloseHandle(event);
     }
 
-    // ビューの生成
-    {
-        if (!create()) {
-            return false;
-        }
-    }
-
     return true;
 }
 
-//---------------------------------------------------------------------------------
-/**
- * @brief	テクスチャビューを生成する
- * @return	成功した場合は true
- */
-bool Texture::create() noexcept {
-    // テクスチャービュー（SRV)のディスクリプターヒープの作成
-    D3D12_DESCRIPTOR_HEAP_DESC shdesc = {};
-    shdesc.NumDescriptors             = 1;
-    shdesc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    shdesc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    auto res                          = Device::instance().device()->CreateDescriptorHeap(&shdesc, IID_PPV_ARGS(heap_.GetAddressOf()));
-    if (FAILED(res)) {
-        ASSERT(false, "テクスチャービュー（SRV)のディスクリプターヒープの作成に失敗");
-        return false;
-    }
-
-    // ビュー（SRV)を作る
-    D3D12_SHADER_RESOURCE_VIEW_DESC sdesc = {};
-    sdesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    sdesc.Format                          = resourcesDesc_.Format;
-    sdesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
-    sdesc.Texture2D.MipLevels             = resourcesDesc_.MipLevels;  // 1;
-    Device::instance().device()->CreateShaderResourceView(resources_.Get(), &sdesc, heap_->GetCPUDescriptorHandleForHeapStart());
-
-    return true;
-}
 
 }  // namespace dx12::resource

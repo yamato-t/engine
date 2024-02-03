@@ -49,9 +49,9 @@ public:
      * @brief	コマンドリストに設定する
      * @param	commandList				設定先のコマンドリスト
      * @param	index					コンスタントバッファのインデックス
-     * @param	descriptorTableIndex	ディスクリプタテーブルのインデックス
+     * @param	rootParameterIndex	ルートパラメータのインデックス
      */
-    void setToCommandList(CommandList& commandList, uint32_t index, uint32_t descriptorTableIndex) noexcept;
+    void setToCommandList(CommandList& commandList, uint32_t index, uint32_t rootParameterIndex) noexcept;
 
     //---------------------------------------------------------------------------------
     /**
@@ -90,11 +90,10 @@ public:
      * @brief	ムーブコンストラクタ
      */
     ConstantBuffer(ConstantBuffer&& src) noexcept {
-
         resource_ = std::move(src.resource_);
         data_     = src.data_;
 
-		src.data_ = {};
+        src.data_ = {};
     }
 
     //---------------------------------------------------------------------------------
@@ -107,23 +106,29 @@ public:
     /**
      * @brief	コンスタントバッファを作成する
      */
-    void createBuffer() noexcept { resource_->create(reinterpret_cast<void*>(&data_), sizeof(type), Num); }
+    void createBuffer() noexcept {
+        resource_->create(reinterpret_cast<void*>(&data_), sizeof(type), Num);
+    }
 
     //---------------------------------------------------------------------------------
     /**
      * @brief	ディスクリプタヒープに登録する
      * @param	descriptorHeap			登録先のヒープ
      */
-    void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept { resource_->registerToDescriptorHeap(descriptorHeap); }
+    void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept {
+        resource_->registerToDescriptorHeap(descriptorHeap);
+    }
 
     //---------------------------------------------------------------------------------
     /**
      * @brief	コマンドリストに設定する
-     * @param	commandList				設定先のコマンドリスト
-     * @param	index					コンスタントバッファのインデックス
-     * @param	descriptorTableIndex	ディスクリプタテーブルのインデックス
+     * @param	commandList			設定先のコマンドリスト
+     * @param	index				コンスタントバッファのインデックス
+     * @param	rootParameterIndex	ルートパラメータのインデックス
      */
-    void setToCommandList(CommandList& commandList, uint32_t index, uint32_t descriptorTableIndex) noexcept { resource_->setToCommandList(commandList, index, descriptorTableIndex); }
+    void setToCommandList(CommandList& commandList, uint32_t index, uint32_t rootParameterIndex) noexcept {
+        resource_->setToCommandList(commandList, index, rootParameterIndex);
+    }
 
     //---------------------------------------------------------------------------------
     /**

@@ -3,6 +3,7 @@
 #include "dx12/command_list.h"
 #include "utility/noncopyable.h"
 #include "dx12/command_list.h"
+#include "dx12/descriptor_heap.h"
 
 namespace dx12::resource {
 
@@ -34,22 +35,31 @@ public:
 
     //---------------------------------------------------------------------------------
     /**
-     * @brief	テクスチャをファイルから読み込む
-     * @param	path				ファイルパス
-	 * @return	成功した場合は true
+     * @brief	ディスクリプタヒープに登録する
+     * @param	descriptorHeap			登録先のヒープ
      */
-    [[nodiscard]] bool loadFromFile(std::string_view path) noexcept;
+    void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept;
 
     //---------------------------------------------------------------------------------
     /**
-     * @brief	テクスチャビューを生成する
+     * @brief	コマンドリストに設定する
+     * @param	commandList				設定先のコマンドリスト
+     * @param	rootParameterIndex		ルートパラメータのインデックス
+     */
+    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	テクスチャをファイルから読み込む
+     * @param	path				ファイルパス
      * @return	成功した場合は true
      */
-    [[nodiscard]] bool create() noexcept;
+    [[nodiscard]] bool loadFromFile(std::string_view path) noexcept;
 
 private:
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap_{};       ///< ディスクリプタヒープ
-    Microsoft::WRL::ComPtr<ID3D12Resource>       resources_{};  ///< リソース
-    D3D12_RESOURCE_DESC                          resourcesDesc_{};
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap_{};           ///< ディスクリプタヒープ
+    Microsoft::WRL::ComPtr<ID3D12Resource>       resources_{};      ///< リソース
+    D3D12_RESOURCE_DESC                          resourcesDesc_{};  ///< リソースフォーマット情報
+    DescriptorHeap::RegisterHandle               handle_{};         ///< ヒープ登録ハンドル
 };
 }  // namespace dx12::resource
