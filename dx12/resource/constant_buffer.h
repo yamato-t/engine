@@ -35,14 +35,35 @@ public:
      * @param	num			コンスタントバッファの数
      * @return	作成に成功した場合は true
      */
-    [[nodiscard]] bool create(void* data, uint32_t stride, uint32_t num) noexcept override;
+    bool create(void* data, uint32_t stride, uint32_t num) noexcept;
 
+public:
     //---------------------------------------------------------------------------------
     /**
      * @brief	ディスクリプタヒープに登録する
      * @param	descriptorHeap	登録先のヒープ
      */
-    void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept override;
+    void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	コマンドリストに設定する
+     * @param	commandList				設定先のコマンドリスト
+     * @param	rootParameterIndex		ルートパラメータのインデックス
+     * @param	index					バッファのインデックス
+     */
+    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex, uint32_t index = 0) noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	オフセットを取得する
+     * @param	index			バッファのインデックス
+     * @return	インデックスに対応するオフセット
+     */
+    [[nodiscard]] uint64_t offset(uint32_t index) const noexcept;
+
+private:
+    DescriptorHeap::RegisterHandle handle_{};  ///< ヒープ登録ハンドル
 };
 
 //---------------------------------------------------------------------------------
@@ -84,9 +105,7 @@ public:
      * @brief	コンスタントバッファを作成する
      */
     void create() noexcept {
-        if (!resource_->create(reinterpret_cast<void*>(&data_), sizeof(type), Num)) {
-            ASSERT(false, "コンスタントバッファ作成失敗");
-		}
+        resource_->create(reinterpret_cast<void*>(&data_), sizeof(type), Num);
     }
 
     //---------------------------------------------------------------------------------

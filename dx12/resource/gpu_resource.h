@@ -22,51 +22,38 @@ public:
 
     //---------------------------------------------------------------------------------
     /**
+     * @brief	コンストラクタ
+     */
+    GpuResource(GpuResource&& src) noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
      * @brief	デストラクタ
      */
     virtual ~GpuResource() = default;
 
-public:
+protected:
     //---------------------------------------------------------------------------------
     /**
-     * @brief	バッファを生成する
-     * @param	data		データの先頭アドレス
+     * @brief	GPUリソースを作成する
      * @param	stride		バッファのストライド
      * @param	num			バッファの数
      * @return	作成に成功した場合は true
      */
-    [[nodiscard]] virtual bool create(void* data, uint32_t stride, uint32_t num) noexcept = 0;
+    [[nodiscard]] virtual bool createCommittedResource(uint32_t stride, uint32_t num) noexcept;
 
     //---------------------------------------------------------------------------------
     /**
-     * @brief	ディスクリプタヒープに登録する
-     * @param	descriptorHeap	登録先のヒープ
+     * @brief	GPUリソース名を設定する
+     * @param	name		リソース名
      */
-    virtual void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept = 0;
-
-public:
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	コマンドリストに設定する
-     * @param	commandList				設定先のコマンドリスト
-     * @param	rootParameterIndex		ルートパラメータのインデックス
-     * @param	index					バッファのインデックス
-     */
-    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex, uint32_t index = 0) noexcept;
-
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	オフセットを取得する
-     * @param	index			バッファのインデックス
-     * @return	インデックスに対応するオフセット
-     */
-    [[nodiscard]] uint64_t offset(uint32_t index) const noexcept;
+    void setName(std::string_view name) noexcept;
 
 protected:
-    Microsoft::WRL::ComPtr<ID3D12Resource> gpuResource_{};  ///< リソース
-    uint32_t                               alignedSize_{};  ///< バッファサイズ（アラインメント済み）
-    uint32_t                               num_{};          ///< バッファ数
-    DescriptorHeap::RegisterHandle         handle_{};       ///< ヒープ登録ハンドル
+    Microsoft::WRL::ComPtr<ID3D12Resource> gpuResource_{};    ///< リソース
+    uint32_t                               alignedStride_{};  ///< ストライドサイズ（アラインメント済み）
+    uint32_t                               num_{};            ///< バッファ数
+    uint32_t                               size_{};           ///< バッファの全体サイズ（ストライド x バッファ数）
 };
 
 }  // namespace dx12::resource
