@@ -3,8 +3,7 @@
 #include "dx12/device.h"
 #include "dx12/command_list.h"
 #include "dx12/descriptor_heap.h"
-
-#include "utility/noncopyable.h"
+#include "dx12/resource/gpu_resource.h"
 
 namespace dx12::resource {
 
@@ -13,7 +12,7 @@ namespace dx12::resource {
  * @brief
  * コンスタントバッファリソース
  */
-class ConstantBufferResource final : public utility::Noncopyable {
+class ConstantBufferResource final : public GpuResource {
 public:
     //---------------------------------------------------------------------------------
     /**
@@ -27,6 +26,7 @@ public:
      */
     ~ConstantBufferResource() = default;
 
+public:
     //---------------------------------------------------------------------------------
     /**
      * @brief	コンスタントバッファを生成する
@@ -35,37 +35,14 @@ public:
      * @param	num			コンスタントバッファの数
      * @return	作成に成功した場合は true
      */
-    bool create(void* data, uint32_t stride, uint32_t num) noexcept;
+    [[nodiscard]] bool create(void* data, uint32_t stride, uint32_t num) noexcept override;
 
     //---------------------------------------------------------------------------------
     /**
      * @brief	ディスクリプタヒープに登録する
-     * @param	descriptorHeap			登録先のヒープ
+     * @param	descriptorHeap	登録先のヒープ
      */
-    void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept;
-
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	コマンドリストに設定する
-     * @param	commandList				設定先のコマンドリスト
-     * @param	index					コンスタントバッファのインデックス
-     * @param	rootParameterIndex	ルートパラメータのインデックス
-     */
-    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex, uint32_t index) noexcept;
-
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	オフセットを取得する
-     * @param	index			コンスタントバッファのインデックス
-     * @return	インデックスに対応するオフセット
-     */
-    uint64_t offset(uint32_t index) const noexcept;
-
-private:
-    Microsoft::WRL::ComPtr<ID3D12Resource> gpuResource_{};  ///< リソース
-    uint32_t                               stride_{};       ///< バッファのストライド
-    uint32_t                               num_{};          ///< バッファ数
-    DescriptorHeap::RegisterHandle         handle_{};       ///< ヒープ登録ハンドル
+    void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept override;
 };
 
 //---------------------------------------------------------------------------------
@@ -74,7 +51,7 @@ private:
  * コンスタントバッファ
  */
 template <class T, uint32_t Num>
-class ConstantBuffer final : utility::Noncopyable {
+class ConstantBuffer final : public utility::Noncopyable {
 private:
     using type = T;
 
@@ -106,8 +83,10 @@ public:
     /**
      * @brief	コンスタントバッファを作成する
      */
-    void createBuffer() noexcept {
-        resource_->create(reinterpret_cast<void*>(&data_), sizeof(type), Num);
+    void create() noexcept {
+        if (!resource_->create(reinterpret_cast<void*>(&data_), sizeof(type), Num)) {
+            ASSERT(false, "コンスタントバッファ作成失敗");
+		}
     }
 
     //---------------------------------------------------------------------------------
@@ -142,7 +121,7 @@ public:
     }
 
 private:
-    std::unique_ptr<ConstantBufferResource> resource_ = {};
-    type*                                   data_     = {};  ///< CPUで内容を変更する際のアクセス先アドレス
+    std::unique_ptr<ConstantBufferResource> resource_{};  ///< コンスタントバッファGPUリソース
+    type*                                   data_{};      ///< CPUで内容を変更する際のアクセス先アドレス
 };
 }  // namespace dx12::resource

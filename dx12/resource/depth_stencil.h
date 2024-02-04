@@ -10,7 +10,7 @@ namespace dx12::resource {
  * @brief
  * デプスステンシル
  */
-class DepthStencil final : utility::Noncopyable {
+class DepthStencil final : public utility::Noncopyable {
 public:
     //---------------------------------------------------------------------------------
     /**

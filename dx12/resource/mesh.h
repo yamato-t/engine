@@ -45,7 +45,6 @@ namespace dx12::resource {
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource>	gpuResource_	= {};	///< 頂点バッファリソース
 		D3D12_VERTEX_BUFFER_VIEW				view_			= {};	///< 頂点バッファビュー
-		uint32_t								stride_			= {};	///< バッファのストライド
 		uint32_t								num_			= {};	///< バッファ数
 	};
 
@@ -95,7 +94,6 @@ namespace dx12::resource {
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource>	gpuResource_	= {};	///< インデックスバッファリソース
 		D3D12_INDEX_BUFFER_VIEW					view_			= {};	///< インデックスバッファビュー
-		uint32_t								stride_			= {};	///< バッファのストライド
 		uint32_t								num_			= {};	///< バッファ数
 	};
 
@@ -105,7 +103,7 @@ namespace dx12::resource {
 	 * @brief
 	 * メッシュ
 	 */
-	class Mesh final : utility::Noncopyable {
+	class Mesh final : public utility::Noncopyable {
 	public:
 		//---------------------------------------------------------------------------------
 		/**

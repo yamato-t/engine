@@ -8,15 +8,6 @@ namespace dx12::resource {
 
 //---------------------------------------------------------------------------------
 /**
- * @brief	テクスチャビュー（SRV）を取得する
- * @return	ビュー（ハンドル）
- */
-D3D12_CPU_DESCRIPTOR_HANDLE Texture::view() noexcept {
-    return heap_->GetCPUDescriptorHandleForHeapStart();
-}
-
-//---------------------------------------------------------------------------------
-/**
  * @brief	ディスクリプタヒープに登録する
  * @param	descriptorHeap			登録先のヒープ
  */
@@ -53,7 +44,7 @@ void Texture::setToCommandList(CommandList& commandList, uint32_t rootParameterI
  * @param	path ファイルパス
  * @return	作成に成功した場合は true
  */
-bool Texture::loadFromFile(std::string_view path) noexcept {
+bool Texture::create(std::string_view path) noexcept {
     D3D12_SUBRESOURCE_DATA     subRes{};
     std::unique_ptr<uint8_t[]> decodedData{};
 

@@ -10,7 +10,7 @@ namespace dx12 {
 	 * @brief
 	 * フェンス
 	 */
-	class Fence final : utility::Noncopyable {
+	class Fence final : public utility::Noncopyable {
 
 	public:
 		//---------------------------------------------------------------------------------

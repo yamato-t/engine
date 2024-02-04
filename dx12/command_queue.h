@@ -10,7 +10,7 @@ namespace dx12 {
 	 * @brief
 	 * コマンドキュー
 	 */
-	class CommandQueue final : utility::Noncopyable {
+	class CommandQueue final : public utility::Noncopyable {
 	public:
 		//---------------------------------------------------------------------------------
 		/**

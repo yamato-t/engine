@@ -11,7 +11,7 @@ namespace dx12::resource {
  * @brief
  * レンダーターゲット
  */
-class RenderTarget final : utility::Noncopyable {
+class RenderTarget final : public utility::Noncopyable {
 public:
     //---------------------------------------------------------------------------------
     /**

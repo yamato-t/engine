@@ -42,8 +42,10 @@ bool ConstantBufferResource::create(void* data, uint32_t stride, uint32_t num) n
     resourceDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
 
     auto res = dx12::Device::instance().device()->CreateCommittedResource(
-        &heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-        IID_PPV_ARGS(gpuResource_.GetAddressOf()));
+        &heapProperty, D3D12_HEAP_FLAG_NONE,
+        &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr, IID_PPV_ARGS(gpuResource_.GetAddressOf()));
+
     if (FAILED(res)) {
         ASSERT(false, "コンスタントバッファの作成に失敗");
         return false;
@@ -51,8 +53,8 @@ bool ConstantBufferResource::create(void* data, uint32_t stride, uint32_t num) n
 
     gpuResource_->Map(0, nullptr, reinterpret_cast<void**>(data));
 
-    stride_ = stride;
-    num_    = num;
+    alignedSize_ = ALIGN(stride);
+    num_         = num;
 
     return true;
 }
@@ -68,37 +70,13 @@ void ConstantBufferResource::registerToDescriptorHeap(DescriptorHeap& descriptor
 
     for (auto i = 0; i < num_; ++i) {
         D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-        cbvDesc.BufferLocation                  = gpuResource_->GetGPUVirtualAddress() + i * ALIGN(stride_);
-        cbvDesc.SizeInBytes                     = ALIGN(stride_);
+        cbvDesc.BufferLocation                  = gpuResource_->GetGPUVirtualAddress() + i * alignedSize_;
+        cbvDesc.SizeInBytes                     = alignedSize_;
 
         D3D12_CPU_DESCRIPTOR_HANDLE handle{};
         handle.ptr = handle_.cpuHandle_ + (i * handle_.incrementSize_);
         dx12::Device::instance().device()->CreateConstantBufferView(&cbvDesc, handle);
     }
-}
-
-//---------------------------------------------------------------------------------
-/**
- * @brief	コマンドリストに設定する
- * @param	commandList			設定先のコマンドリスト
- * @param	rootParameterIndex	ルートパラメータのインデックス
- * @param	index				コンスタントバッファのインデックス
- */
-void ConstantBufferResource::setToCommandList(dx12::CommandList& commandList, uint32_t rootParameterIndex, uint32_t index) noexcept {
-    D3D12_GPU_DESCRIPTOR_HANDLE handle{};
-    handle.ptr = handle_.gpuHandle_ + (index * handle_.incrementSize_);
-    commandList.get()->SetGraphicsRootDescriptorTable(rootParameterIndex, handle);
-}
-
-//---------------------------------------------------------------------------------
-/**
- * @brief	オフセットを取得する
- * @param	index			コンスタントバッファのインデックス
- * @return	インデックスに対応するオフセット
- */
-uint64_t ConstantBufferResource::offset(uint32_t index) const noexcept {
-    ASSERT(index < num_, "バッファサイズが不正です");
-    return ALIGN(stride_) * index;
 }
 
 }  // namespace dx12::resource

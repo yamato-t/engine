@@ -12,7 +12,7 @@ namespace dx12::resource {
  * @brief
  * テクスチャ
  */
-class Texture final : utility::Noncopyable {
+class Texture final : public utility::Noncopyable {
 public:
     //---------------------------------------------------------------------------------
     /**
@@ -25,13 +25,6 @@ public:
      * @brief	デストラクタ
      */
     ~Texture() = default;
-
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	テクスチャビュー（SRV）を取得する
-     * @return	ビュー（ハンドル）
-     */
-    [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE view() noexcept;
 
     //---------------------------------------------------------------------------------
     /**
@@ -54,7 +47,7 @@ public:
      * @param	path				ファイルパス
      * @return	成功した場合は true
      */
-    [[nodiscard]] bool loadFromFile(std::string_view path) noexcept;
+    [[nodiscard]] bool create(std::string_view path) noexcept;
 
 private:
     Microsoft::WRL::ComPtr<ID3D12Resource>       resources_{};      ///< リソース

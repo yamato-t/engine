@@ -171,6 +171,7 @@
     <ClInclude Include="dx12\graphics\shader.h" />
     <ClInclude Include="dx12\resource\constant_buffer.h" />
     <ClInclude Include="dx12\resource\depth_stencil.h" />
+    <ClInclude Include="dx12\resource\gpu_resource.h" />
     <ClInclude Include="dx12\resource\render_target.h" />
     <ClInclude Include="dx12\resource\mesh.h" />
     <ClInclude Include="dx12\resource\texture.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="dx12\graphics\shader.cpp" />
     <ClCompile Include="dx12\resource\constant_buffer.cpp" />
     <ClCompile Include="dx12\resource\depth_stencil.cpp" />
+    <ClCompile Include="dx12\resource\gpu_resource.cpp" />
     <ClCompile Include="dx12\resource\render_target.cpp" />
     <ClCompile Include="dx12\resource\mesh.cpp" />
     <ClCompile Include="dx12\resource\texture.cpp" />
