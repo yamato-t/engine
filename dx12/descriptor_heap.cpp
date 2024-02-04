@@ -7,28 +7,29 @@ namespace dx12 {
 /**
  * @brief	ディスクリプタヒープを生成する
  * @param	type			ヒープが管理する対象の種類
- * @param	maxNum			登録最大数
+ * @param	capacity		最大管理数
  * @param	flags			フラグ設定
  * @return	作成に成功した場合は true
  */
-bool DescriptorHeap::create(uint32_t type, uint32_t maxNum, uint32_t flags) noexcept {
+bool DescriptorHeap::create(uint32_t type, uint32_t capacity, uint32_t flags) noexcept {
     // ディスクリプタヒープ作成
-    D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-    heapDesc.Type                       = static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(type);
-    heapDesc.NumDescriptors             = maxNum;
-    heapDesc.Flags                      = static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(flags);
+    desc_ = {};
+
+    desc_.Type           = static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(type);
+    desc_.NumDescriptors = capacity;
+    desc_.Flags          = static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(flags);
 
     auto res = dx12::Device::instance().device()->CreateDescriptorHeap(
-        &heapDesc,
+        &desc_,
         IID_PPV_ARGS(heap_.GetAddressOf()));
 
     if (FAILED(res)) {
         ASSERT(false, "ディスクリプタヒープの作成に失敗");
         return false;
     }
-    heap_->SetName(std::format(L"DescriptorHeap type:{} maxNum:{} flags:{} ", type, maxNum, flags).data());
+    heap_->SetName(std::format(L"DescriptorHeap type:{} capacity:{} flags:{} ", type, capacity, flags).data());
 
-    maxNum_ = maxNum;
+    capacity_ = capacity;
     return true;
 }
 
@@ -39,7 +40,7 @@ bool DescriptorHeap::create(uint32_t type, uint32_t maxNum, uint32_t flags) noex
  * @return	登録ハンドル
  */
 DescriptorHeap::RegisterHandle DescriptorHeap::registerBuffer(uint32_t num) noexcept {
-    const auto size = dx12::Device::instance().device()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    const auto size = dx12::Device::instance().device()->GetDescriptorHandleIncrementSize(desc_.Type);
 
     auto cpuHandle = heap_->GetCPUDescriptorHandleForHeapStart();
     auto gpuHandle = heap_->GetGPUDescriptorHandleForHeapStart();

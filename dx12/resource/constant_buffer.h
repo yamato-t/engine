@@ -51,7 +51,7 @@ public:
      * @param	index					コンスタントバッファのインデックス
      * @param	rootParameterIndex	ルートパラメータのインデックス
      */
-    void setToCommandList(CommandList& commandList, uint32_t index, uint32_t rootParameterIndex) noexcept;
+    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex, uint32_t index) noexcept;
 
     //---------------------------------------------------------------------------------
     /**
@@ -123,11 +123,11 @@ public:
     /**
      * @brief	コマンドリストに設定する
      * @param	commandList			設定先のコマンドリスト
-     * @param	index				コンスタントバッファのインデックス
      * @param	rootParameterIndex	ルートパラメータのインデックス
+     * @param	index				コンスタントバッファのインデックス
      */
-    void setToCommandList(CommandList& commandList, uint32_t index, uint32_t rootParameterIndex) noexcept {
-        resource_->setToCommandList(commandList, index, rootParameterIndex);
+    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex, uint32_t index) noexcept {
+        resource_->setToCommandList(commandList, rootParameterIndex, index);
     }
 
     //---------------------------------------------------------------------------------

@@ -41,8 +41,9 @@ bool ConstantBufferResource::create(void* data, uint32_t stride, uint32_t num) n
     resourceDesc.Layout              = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
     resourceDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
 
-    auto res = dx12::Device::instance().device()->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                                                          IID_PPV_ARGS(gpuResource_.GetAddressOf()));
+    auto res = dx12::Device::instance().device()->CreateCommittedResource(
+        &heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+        IID_PPV_ARGS(gpuResource_.GetAddressOf()));
     if (FAILED(res)) {
         ASSERT(false, "コンスタントバッファの作成に失敗");
         return false;
@@ -80,10 +81,10 @@ void ConstantBufferResource::registerToDescriptorHeap(DescriptorHeap& descriptor
 /**
  * @brief	コマンドリストに設定する
  * @param	commandList			設定先のコマンドリスト
- * @param	index				コンスタントバッファのインデックス
  * @param	rootParameterIndex	ルートパラメータのインデックス
+ * @param	index				コンスタントバッファのインデックス
  */
-void ConstantBufferResource::setToCommandList(dx12::CommandList& commandList, uint32_t index, uint32_t rootParameterIndex) noexcept {
+void ConstantBufferResource::setToCommandList(dx12::CommandList& commandList, uint32_t rootParameterIndex, uint32_t index) noexcept {
     D3D12_GPU_DESCRIPTOR_HANDLE handle{};
     handle.ptr = handle_.gpuHandle_ + (index * handle_.incrementSize_);
     commandList.get()->SetGraphicsRootDescriptorTable(rootParameterIndex, handle);

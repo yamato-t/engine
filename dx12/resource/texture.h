@@ -57,7 +57,6 @@ public:
     [[nodiscard]] bool loadFromFile(std::string_view path) noexcept;
 
 private:
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap_{};           ///< ディスクリプタヒープ
     Microsoft::WRL::ComPtr<ID3D12Resource>       resources_{};      ///< リソース
     D3D12_RESOURCE_DESC                          resourcesDesc_{};  ///< リソースフォーマット情報
     DescriptorHeap::RegisterHandle               handle_{};         ///< ヒープ登録ハンドル
