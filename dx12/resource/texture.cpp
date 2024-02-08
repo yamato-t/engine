@@ -8,24 +8,11 @@ namespace dx12::resource {
 
 //---------------------------------------------------------------------------------
 /**
- * @brief	コンストラクタ
- */
-Texture::Texture(Texture&& src) noexcept
-    : GpuResource(std::move(src)) {
-    resourcesDesc_ = src.resourcesDesc_;
-    handle_        = src.handle_;
-
-    src.resourcesDesc_ = {};
-    src.handle_        = {};
-}
-
-//---------------------------------------------------------------------------------
-/**
  * @brief	テクスチャをファイルから作成する
  * @param	path ファイルパス
  * @return	作成に成功した場合は true
  */
-bool Texture::create(std::string_view path) noexcept {
+bool TextureResource::create(std::string_view path) noexcept {
     D3D12_SUBRESOURCE_DATA     subRes{};
     std::unique_ptr<uint8_t[]> decodedData{};
 
@@ -94,7 +81,7 @@ bool Texture::create(std::string_view path) noexcept {
  * @brief	ディスクリプタヒープに登録する
  * @param	descriptorHeap			登録先のヒープ
  */
-void Texture::registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept {
+void TextureResource::registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept {
     // ヒープ登録ハンドルを取得する
     handle_ = descriptorHeap.registerBuffer(1);
 
@@ -115,7 +102,7 @@ void Texture::registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept 
  * @param	commandList				設定先のコマンドリスト
  * @param	rootParameterIndex		ルートパラメータのインデックス
  */
-void Texture::setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept {
+void TextureResource::setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept {
     D3D12_GPU_DESCRIPTOR_HANDLE handle{};
     handle.ptr = handle_.gpuHandle_;
     commandList.get()->SetGraphicsRootDescriptorTable(rootParameterIndex, handle);
@@ -128,7 +115,7 @@ void Texture::setToCommandList(CommandList& commandList, uint32_t rootParameterI
  * @param	num			バッファの数
  * @return	作成に成功した場合は true
  */
-bool Texture::createCommittedResource(uint32_t stride, uint32_t num) noexcept {
+bool TextureResource::createCommittedResource(uint32_t stride, uint32_t num) noexcept {
     alignedStride_ = stride;
     num_           = num;
     size_          = num_ * alignedStride_;
