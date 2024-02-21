@@ -78,22 +78,61 @@ bool TextureResource::create(std::string_view path) noexcept {
 
 //---------------------------------------------------------------------------------
 /**
+ * @brief	テクスチャを引数から作成する
+ * @param	w h			横と縦のサイズ
+ * @param	mipLevel	ミップマップレベル
+ * @param	arraySize	テクスチャ配列サイズ
+ * @param	format		テクスチャフォーマット
+ * @return	成功した場合は true
+ */
+bool TextureResource::create(uint32_t w, uint32_t h, uint32_t mipLevel, uint32_t arraySize, DXGI_FORMAT format) noexcept {
+    // GPU リソースの作成
+    CD3DX12_RESOURCE_DESC desc(
+        D3D12_RESOURCE_DIMENSION_TEXTURE2D,
+        0,
+        w,
+        h,
+        arraySize,
+        mipLevel,
+        format,
+        1,
+        0,
+        D3D12_TEXTURE_LAYOUT_UNKNOWN,
+        D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    auto&& prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+
+    D3D12_CLEAR_VALUE clearValue;
+    clearValue.Format   = desc.Format;
+    clearValue.Color[0] = 1.0f;
+    clearValue.Color[1] = 0.0f;
+    clearValue.Color[2] = 0.0f;
+    clearValue.Color[3] = 1.0f;
+
+    Device::instance().device()->CreateCommittedResource(
+        &prop,
+        D3D12_HEAP_FLAG_NONE,
+        &desc,
+        D3D12_RESOURCE_STATE_COMMON,
+        &clearValue,
+        IID_PPV_ARGS(gpuResource_.GetAddressOf()));
+
+    resourcesDesc_ = gpuResource_->GetDesc();
+
+    createCommittedResource(w, h);
+
+    setName("テクスチャ");
+
+    return true;
+}
+
+//---------------------------------------------------------------------------------
+/**
  * @brief	ディスクリプタヒープに登録する
  * @param	descriptorHeap			登録先のヒープ
  */
 void TextureResource::registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept {
     // ヒープ登録ハンドルを取得する
     handle_ = descriptorHeap.registerBuffer(1);
-
-    D3D12_SHADER_RESOURCE_VIEW_DESC sdesc = {};
-    sdesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    sdesc.Format                          = resourcesDesc_.Format;
-    sdesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
-    sdesc.Texture2D.MipLevels             = resourcesDesc_.MipLevels;
-
-    D3D12_CPU_DESCRIPTOR_HANDLE handle{};
-    handle.ptr = handle_.cpuHandle_;
-    Device::instance().device()->CreateShaderResourceView(gpuResource_.Get(), &sdesc, handle);
 }
 
 //---------------------------------------------------------------------------------

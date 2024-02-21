@@ -32,6 +32,30 @@ public:
      */
     virtual ~GpuResource() = default;
 
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	GPUリソースを取得する
+     */
+    ID3D12Resource* get() const noexcept { return gpuResource_.Get(); }
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	ストライドサイズ（アラインメント済み）を取得する
+     */
+    uint32_t alignedStride() const noexcept { return alignedStride_; }
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	バッファ数を取得する
+     */
+    uint32_t bufferNum() const noexcept { return num_; }
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	全体のサイズを取得する
+     */
+    uint32_t size() const noexcept { return size_; }
+
 protected:
     //---------------------------------------------------------------------------------
     /**
@@ -49,7 +73,7 @@ protected:
      */
     void setName(std::string_view name) noexcept;
 
-protected:
+public:
     Microsoft::WRL::ComPtr<ID3D12Resource> gpuResource_{};    ///< リソース
     uint32_t                               alignedStride_{};  ///< ストライドサイズ（アラインメント済み）
     uint32_t                               num_{};            ///< バッファ数

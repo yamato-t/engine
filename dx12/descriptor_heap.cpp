@@ -43,7 +43,7 @@ DescriptorHeap::RegisterHandle DescriptorHeap::registerBuffer(uint32_t num) noex
     const auto size = dx12::Device::instance().device()->GetDescriptorHandleIncrementSize(desc_.Type);
 
     auto cpuHandle = heap_->GetCPUDescriptorHandleForHeapStart();
-    auto gpuHandle = heap_->GetGPUDescriptorHandleForHeapStart();
+    auto gpuHandle = desc_.Type == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV ? heap_->GetGPUDescriptorHandleForHeapStart() : D3D12_GPU_DESCRIPTOR_HANDLE{};
 
     auto temp = currentIndex_;
     cpuHandle.ptr += (currentIndex_ * size);
@@ -53,6 +53,25 @@ DescriptorHeap::RegisterHandle DescriptorHeap::registerBuffer(uint32_t num) noex
 
     return {temp, cpuHandle.ptr, gpuHandle.ptr, size};
 }
+
+//---------------------------------------------------------------------------------
+/**
+ * @brief	ヒープにバッファを登録する
+ * @param	num			登録数
+ * @return	登録ハンドル
+ */
+DescriptorHeap::RegisterHandle DescriptorHeap::get(uint32_t index) noexcept {
+    const auto size = dx12::Device::instance().device()->GetDescriptorHandleIncrementSize(desc_.Type);
+
+    auto cpuHandle = heap_->GetCPUDescriptorHandleForHeapStart();
+    auto gpuHandle = desc_.Type == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV ? heap_->GetGPUDescriptorHandleForHeapStart() : D3D12_GPU_DESCRIPTOR_HANDLE{};
+
+    cpuHandle.ptr += (index * size);
+    gpuHandle.ptr += (index * size);
+
+    return {index, cpuHandle.ptr, gpuHandle.ptr, size};
+}
+
 
 //---------------------------------------------------------------------------------
 /**

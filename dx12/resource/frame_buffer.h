@@ -83,6 +83,6 @@ private:
     const uint32_t                                      bufferNum_{};           ///< バッファ数
     uint32_t                                            size_{};                ///< ディスクリプタサイズ
     uint32_t                                            currentBufferIndex_{};  ///< 現在のバッファインデックス
-    resource::DepthStencil                              depthStencil_{};         // デプスステンシル
+    resource::DepthStencil                              depthStencil_{};        ///< デプスステンシル
 };
 }  // namespace dx12::resource

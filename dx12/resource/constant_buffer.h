@@ -37,7 +37,6 @@ public:
      */
     bool create(void* data, uint32_t stride, uint32_t num) noexcept;
 
-public:
     //---------------------------------------------------------------------------------
     /**
      * @brief	ディスクリプタヒープに登録する
