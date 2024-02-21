@@ -1,4 +1,4 @@
-﻿#include "dx12/resource/render_target.h"
+﻿#include "dx12/resource/frame_buffer.h"
 
 #include "window/window.h"
 
@@ -34,7 +34,7 @@ void resourceBarrier(CommandList& commandList, ID3D12Resource* resource, D3D12_R
 /**
  * @brief	コンストラクタ
  */
-RenderTarget::RenderTarget(uint32_t bufferNum) : bufferNum_(bufferNum) {
+FrameBuffer::FrameBuffer(uint32_t bufferNum) : bufferNum_(bufferNum) {
     resources_.resize(bufferNum_);
 }
 
@@ -44,7 +44,7 @@ RenderTarget::RenderTarget(uint32_t bufferNum) : bufferNum_(bufferNum) {
  * @param	swapChain	バッファ本体を持っているスワップチェイン
  * @return	作成に成功した場合は true
  */
-bool RenderTarget::createView(IDXGISwapChain3* swapChain) noexcept {
+bool FrameBuffer::createView(IDXGISwapChain3* swapChain) noexcept {
     // ビューを格納するディスクリプタヒープを作成する
     D3D12_DESCRIPTOR_HEAP_DESC desc = {};
     desc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
@@ -79,7 +79,7 @@ bool RenderTarget::createView(IDXGISwapChain3* swapChain) noexcept {
  * @brief	レンダーターゲットへのレンダリングを開始する
  * @param	commandList	利用するコマンドリスト
  */
-void RenderTarget::startRendering(CommandList& commandList) noexcept {
+void FrameBuffer::startRendering(CommandList& commandList) noexcept {
     resourceBarrier(commandList, resources_[currentBufferIndex_].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     // レンダーターゲット
@@ -97,7 +97,7 @@ void RenderTarget::startRendering(CommandList& commandList) noexcept {
  * @brief	レンダーターゲットをレンダーターゲットに設定する
  * @param	commandList	利用するコマンドリスト
  */
-void RenderTarget::setToRenderTarget(CommandList& commandList) noexcept {
+void FrameBuffer::setToRenderTarget(CommandList& commandList) noexcept {
     // レンダーターゲット
     D3D12_CPU_DESCRIPTOR_HANDLE handles[]            = {view()};
     D3D12_CPU_DESCRIPTOR_HANDLE depthStencilHandle[] = {depthStencil_.view()};
@@ -127,7 +127,7 @@ void RenderTarget::setToRenderTarget(CommandList& commandList) noexcept {
  * @brief	レンダーターゲットへのレンダリングを終了する
  * @param	commandList	利用するコマンドリスト
  */
-void RenderTarget::finishRendering(CommandList& commandList) noexcept {
+void FrameBuffer::finishRendering(CommandList& commandList) noexcept {
     resourceBarrier(commandList, resources_[currentBufferIndex_].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 }
 
@@ -136,7 +136,7 @@ void RenderTarget::finishRendering(CommandList& commandList) noexcept {
  * @brief	バックバッファのインデックスを更新する
  * @return	更新後のインデックス
  */
-void RenderTarget::updateBufferIndex(uint32_t index) noexcept {
+void FrameBuffer::updateBufferIndex(uint32_t index) noexcept {
     currentBufferIndex_ = index;
 }
 
@@ -145,7 +145,7 @@ void RenderTarget::updateBufferIndex(uint32_t index) noexcept {
  * @brief	レンダーターゲットのバッファ数を取得する
  * @return	レンダーターゲットのバッファ数
  */
-uint32_t RenderTarget::bufferNum() const noexcept {
+uint32_t FrameBuffer::bufferNum() const noexcept {
     return bufferNum_;
 }
 
@@ -154,7 +154,7 @@ uint32_t RenderTarget::bufferNum() const noexcept {
  * @brief	レンダーターゲットビューを取得する
  * @return	レンダーターゲットビュー（ハンドル）
  */
-D3D12_CPU_DESCRIPTOR_HANDLE RenderTarget::view() const noexcept {
+D3D12_CPU_DESCRIPTOR_HANDLE FrameBuffer::view() const noexcept {
     return {heap_->GetCPUDescriptorHandleForHeapStart().ptr + (currentBufferIndex_ * size_)};
 }
 

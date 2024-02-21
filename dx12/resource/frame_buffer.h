@@ -9,22 +9,22 @@ namespace dx12::resource {
 //---------------------------------------------------------------------------------
 /**
  * @brief
- * レンダーターゲット
+ * フレームバッファ
  */
-class RenderTarget final : public utility::Noncopyable {
+class FrameBuffer final : public utility::Noncopyable {
 public:
     //---------------------------------------------------------------------------------
     /**
      * @brief	コンストラクタ
      * @param	bufferNum	レンダーターゲット数
      */
-    RenderTarget(uint32_t bufferNum);
+    FrameBuffer(uint32_t bufferNum);
 
     //---------------------------------------------------------------------------------
     /**
      * @brief	デストラクタ
      */
-    ~RenderTarget() = default;
+    ~FrameBuffer() = default;
 
     //---------------------------------------------------------------------------------
     /**
