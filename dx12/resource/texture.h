@@ -37,32 +37,14 @@ public:
 
     //---------------------------------------------------------------------------------
     /**
-     * @brief	ディスクリプタヒープに登録する
-     * @param	descriptorHeap			登録先のヒープ
+     * @brief    テクスチャを引数から作成する
+     * @param    w h         横と縦のサイズ
+     * @param    mipLevel    ミップマップレベル
+     * @param    arraySize   テクスチャ配列サイズ
+     * @param    format      テクスチャフォーマット
+     * @return    成功した場合は true
      */
-    void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept;
-
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	コマンドリストに設定する
-     * @param	commandList				設定先のコマンドリスト
-     * @param	rootParameterIndex		ルートパラメータのインデックス
-     */
-    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept;
-
-private:
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	GPUリソースを作成する
-     * @param	stride		バッファのストライド
-     * @param	num			バッファの数
-     * @return	作成に成功した場合は true
-     */
-    bool createCommittedResource(uint32_t stride, uint32_t num) noexcept override;
-
-private:
-    D3D12_RESOURCE_DESC            resourcesDesc_{};  ///< リソースフォーマット情報
-    DescriptorHeap::RegisterHandle handle_{};         ///< ヒープ登録ハンドル
+    bool create(uint32_t w, uint32_t h, uint32_t mipLevel, uint32_t arraySize, DXGI_FORMAT format) noexcept;
 };
 
 //---------------------------------------------------------------------------------
@@ -84,6 +66,7 @@ public:
      */
     Texture(Texture&& src) {
         resource_ = std::move(src.resource_);
+        handle_   = src.handle_;
     }
 
     //---------------------------------------------------------------------------------
@@ -104,12 +87,23 @@ public:
 
     //---------------------------------------------------------------------------------
     /**
-     * @brief	ディスクリプタヒープに登録する
-     * @param	descriptorHeap			登録先のヒープ
+     * @brief    テクスチャを引数から作成する
+     * @param    w h         横と縦のサイズ
+     * @param    mipLevel    ミップマップレベル
+     * @param    arraySize   テクスチャ配列サイズ
+     * @param    format      テクスチャフォーマット
+     * @return    成功した場合は true
      */
-    void registerToDescriptorHeap(DescriptorHeap& descriptorHeap) noexcept {
-        resource_->registerToDescriptorHeap(descriptorHeap);
+    [[nodiscard]] bool create(uint32_t w, uint32_t h, uint32_t mipLevel, uint32_t arraySize, DXGI_FORMAT format) noexcept {
+        return resource_->create(w, h, mipLevel, arraySize, format);
     }
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	ビューを生成する
+     * @param	descriptorHeap	ビュー（ディスクリプタ）登録先のヒープ
+     */
+    void createView(DescriptorHeap& descriptorHeap) noexcept;
 
     //---------------------------------------------------------------------------------
     /**
@@ -117,12 +111,11 @@ public:
      * @param	commandList				設定先のコマンドリスト
      * @param	rootParameterIndex		ルートパラメータのインデックス
      */
-    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept {
-        resource_->setToCommandList(commandList, rootParameterIndex);
-    }
+    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept;
 
 private:
-    std::unique_ptr<TextureResource> resource_{};
+    std::unique_ptr<TextureResource> resource_{};  ///< リソース
+    DescriptorHeap::Handle           handle_{};    ///< ヒープ登録ハンドル
 };
 
 }  // namespace dx12::resource

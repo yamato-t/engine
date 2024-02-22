@@ -4,33 +4,12 @@
 
 namespace dx12::resource {
 
-
-//---------------------------------------------------------------------------------
-/**
- * @brief	デプスステンシルビューを取得する
- * @return	デプスステンシルビュー（ハンドル）
- */
-D3D12_CPU_DESCRIPTOR_HANDLE DepthStencil::view() noexcept {
-    return heap_->GetCPUDescriptorHandleForHeapStart();
-}
-
 //---------------------------------------------------------------------------------
 /**
  * @brief	デプスステンシルを作成する
  * @return	作成に成功した場合は true
  */
-bool DepthStencil::create() noexcept {
-    // ビューを格納するディスクリプタヒープを作成する
-    D3D12_DESCRIPTOR_HEAP_DESC desc{};
-    desc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-    desc.NumDescriptors = 1;
-    desc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-
-    auto res = Device::instance().device()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(heap_.GetAddressOf()));
-    if (FAILED(res)) {
-        ASSERT(false, "デプスステンシルビュー用のヒープ確保に失敗");
-    }
-
+bool DepthStencilResource::create() noexcept {
     D3D12_CLEAR_VALUE dsvClearValue{};
     dsvClearValue.Format               = DXGI_FORMAT_D24_UNORM_S8_UINT;
     dsvClearValue.DepthStencil.Depth   = 1.0f;
@@ -40,7 +19,7 @@ bool DepthStencil::create() noexcept {
     resourceDesc.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     resourceDesc.Alignment          = 0;
     resourceDesc.Width              = window::width();
-    resourceDesc.Height             = window::Height();
+    resourceDesc.Height             = window::height();
     resourceDesc.DepthOrArraySize   = 1;
     resourceDesc.MipLevels          = 1;
     resourceDesc.Format             = dsvClearValue.Format;
@@ -56,18 +35,54 @@ bool DepthStencil::create() noexcept {
     heapProperty.CreationNodeMask     = 1;
     heapProperty.VisibleNodeMask      = 1;
 
-    res = dx12::Device::instance().device()->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &dsvClearValue,
-                                                                     IID_PPV_ARGS(resources_.GetAddressOf()));
+    auto res = dx12::Device::instance().device()->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE,
+                                                                          &resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE,
+                                                                          &dsvClearValue, IID_PPV_ARGS(gpuResource_.GetAddressOf()));
     if (FAILED(res)) {
         ASSERT(false, "デプスステンシルバッファの作成に失敗");
         return false;
     }
 
-    // ディスクリプタを作成
-    D3D12_CPU_DESCRIPTOR_HANDLE handle = heap_->GetCPUDescriptorHandleForHeapStart();
-    dx12::Device::instance().device()->CreateDepthStencilView(resources_.Get(), nullptr, handle);
-
     return true;
+}
+
+//---------------------------------------------------------------------------------
+/**
+ * @brief	デプスステンシルを作成する
+ * @return	作成に成功した場合は true
+ */
+bool DepthStencil::create() noexcept {
+    // リソースを作成する
+    resource_->create();
+
+    // ビューを格納するディスクリプタヒープを作成する
+    heap_.create(dx12::DescriptorHeap::Type::DSV, 1);
+
+    createView(heap_);
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------
+/**
+ * @brief	ビューを生成する
+ * @param	descriptorHeap	ビュー（ディスクリプタ）登録先のヒープ
+ */
+void DepthStencil::createView(DescriptorHeap& descriptorHeap) noexcept {
+    // ハンドルを取得する
+    handle_ = descriptorHeap.allocate(1);
+
+    // ディスクリプタを作成
+    dx12::Device::instance().device()->CreateDepthStencilView(resource_->get(), nullptr, handle_.cpuHandle_);
+}
+
+//---------------------------------------------------------------------------------
+/**
+ * @brief	デプスステンシルビューを取得する
+ * @return	デプスステンシルビュー（ハンドル）
+ */
+D3D12_CPU_DESCRIPTOR_HANDLE DepthStencil::view() noexcept {
+    return handle_.cpuHandle_;
 }
 
 }  // namespace dx12::resource

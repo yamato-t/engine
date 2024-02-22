@@ -11,9 +11,7 @@ namespace dx12::graphics {
 template <class T>
 class Container final : public utility::Noncopyable {
 private:
-    Container()                                 = default;
-    Container(Container<T>&& c)                 = delete;
-    Container& operator=(Container<T>&& c)      = delete;
+    Container() = default;
 
 public:
     //---------------------------------------------------------------------------------

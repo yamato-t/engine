@@ -28,22 +28,11 @@ public:
     //---------------------------------------------------------------------------------
     /**
      * @brief	頂点バッファを作成する
-     * @param	data		データの先頭アドレス
      * @param	stride		バッファのストライド
      * @param	num			バッファの数
      * @return	作成に成功した場合は true
      */
-    bool create(void* data, uint32_t stride, uint32_t num) noexcept;
-
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	コマンドリストに設定する
-     * @param	commandList		設定先のコマンドリスト
-     */
-    void setToCommandList(dx12::CommandList& commandList) noexcept;
-
-private:
-    D3D12_VERTEX_BUFFER_VIEW view_{};  ///< 頂点バッファビュー
+    bool create(uint32_t stride, uint32_t num) noexcept;
 };
 
 //---------------------------------------------------------------------------------
@@ -68,29 +57,11 @@ public:
     //---------------------------------------------------------------------------------
     /**
      * @brief	インデックスバッファを作成する
-     * @param	data		データの先頭アドレス
      * @param	stride		バッファのストライド
      * @param	num			バッファの数
      * @return	作成に成功した場合は true
      */
-    bool create(void* data, uint32_t stride, uint32_t num) noexcept;
-
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	コマンドリストに設定する
-     * @param	commandList		設定先のコマンドリスト
-     */
-    void setToCommandList(dx12::CommandList& commandList) noexcept;
-
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	インデックスバッファの要素数を取得する
-     * @return	要素数
-     */
-    uint32_t getNum() const noexcept;
-
-private:
-    D3D12_INDEX_BUFFER_VIEW view_ = {};  ///< インデックスバッファビュー
+    bool create(uint32_t stride, uint32_t num) noexcept;
 };
 
 //---------------------------------------------------------------------------------
@@ -122,7 +93,10 @@ public:
      */
     template <class vertexFormat, uint32_t Num>
     void createVertexBuffer(vertexFormat (&data)[Num]) noexcept {
-        vertexBufferResource_->create(reinterpret_cast<void*>(data), sizeof(vertexFormat), Num);
+        vertexBufferResource_->create(sizeof(vertexFormat), Num);
+
+        setVertexData(reinterpret_cast<void*>(data));
+        createVertexView();
     }
 
     //---------------------------------------------------------------------------------
@@ -133,7 +107,10 @@ public:
      */
     template <class vertexFormat>
     void createVertexBuffer(vertexFormat* data, uint32_t num) noexcept {
-        vertexBufferResource_->create(reinterpret_cast<void*>(data), sizeof(vertexFormat), num);
+        vertexBufferResource_->create(sizeof(vertexFormat), num);
+
+        setVertexData(reinterpret_cast<void*>(data));
+        createVertexView();
     }
 
     //---------------------------------------------------------------------------------
@@ -143,7 +120,10 @@ public:
      */
     template <class indexFormat, uint32_t Num>
     void createIndexBuffer(indexFormat (&data)[Num]) noexcept {
-        indexBufferResource_->create(reinterpret_cast<void*>(data), sizeof(indexFormat), Num);
+        indexBufferResource_->create(sizeof(indexFormat), Num);
+
+        setIndexData(reinterpret_cast<void*>(data));
+        createIndexView();
     }
 
     //---------------------------------------------------------------------------------
@@ -154,17 +134,10 @@ public:
      */
     template <class indexFormat>
     void createIndexBuffer(indexFormat* data, uint32_t num) noexcept {
-        indexBufferResource_->create(reinterpret_cast<void*>(data), sizeof(indexFormat), num);
-    }
+        indexBufferResource_->create(sizeof(indexFormat), num);
 
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	コマンドリストに設定する
-     * @param	commandList		設定先のコマンドリスト
-     */
-    void setToCommandList(CommandList& commandList) noexcept {
-        vertexBufferResource_->setToCommandList(commandList);
-        indexBufferResource_->setToCommandList(commandList);
+        setIndexData(reinterpret_cast<void*>(data));
+        createIndexView();
     }
 
     //---------------------------------------------------------------------------------
@@ -173,11 +146,46 @@ public:
      * @return 	インデックスバッファの要素数
      */
     uint32_t getIndexBufferNum() const noexcept {
-        return indexBufferResource_->getNum();
+        return indexBufferResource_->num();
     }
 
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	コマンドリストに設定する
+     * @param	commandList		設定先のコマンドリスト
+     */
+    void setToCommandList(CommandList& commandList) noexcept;
+
 private:
-    std::unique_ptr<VertexBufferResource> vertexBufferResource_ = {};  ///< 頂点バッファリソース
-    std::unique_ptr<IndexBufferResource>  indexBufferResource_  = {};  ///< インデックスバッファリソース
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	頂点バッファのビューを生成する
+     */
+    void createVertexView() noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	インデックスバッファのビューを生成する
+     */
+    void createIndexView() noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	頂点バッファのデータを設定する
+     */
+    void setVertexData(void* data) noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	インデックスバッファのデータを設定する
+     */
+    void setIndexData(void* data) noexcept;
+
+private:
+    std::unique_ptr<VertexBufferResource> vertexBufferResource_{};  ///< 頂点バッファリソース
+    std::unique_ptr<IndexBufferResource>  indexBufferResource_{};   ///< インデックスバッファリソース
+
+    D3D12_VERTEX_BUFFER_VIEW vertexView_{};  ///< 頂点バッファビュー
+    D3D12_INDEX_BUFFER_VIEW  indexView_{};   ///< インデックスバッファビュー
 };
 }  // namespace dx12::resource

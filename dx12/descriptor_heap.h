@@ -16,13 +16,24 @@ class DescriptorHeap final : public utility::Noncopyable {
 public:
     //---------------------------------------------------------------------------------
     /**
+     * @brief	ヒープ種類
+     */
+    enum class Type {
+        CBV_SRV_UAV = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+        RTV         = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+        DSV         = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+    };
+
+public:
+    //---------------------------------------------------------------------------------
+    /**
      * @brief	登録情報
      */
-    struct RegisterHandle {
-        uint32_t index_{};
-        uint64_t cpuHandle_{};
-        uint64_t gpuHandle_{};
-        uint32_t incrementSize_{};
+    struct Handle {
+        uint32_t                    index_{};
+        D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle_{};
+        D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle_{};
+        uint32_t                    incrementSize_{};
     };
 
 public:
@@ -43,18 +54,25 @@ public:
      * @brief	ディスクリプタヒープを生成する
      * @param	type			ヒープが管理する対象の種類
      * @param	capacity		最大管理数
-     * @param	flags			フラグ設定
      * @return	作成に成功した場合は true
      */
-    bool create(uint32_t type, uint32_t capacity, uint32_t flags) noexcept;
+    bool create(Type type, uint32_t capacity) noexcept;
 
     //---------------------------------------------------------------------------------
     /**
-     * @brief	ヒープにバッファを登録する
-     * @param	num			登録数
+     * @brief	ヒープから指定数を確保する
+     * @param	num			確保数
      * @return	CPU と GPU のディスクリプタハンドル
      */
-    [[nodiscard]] RegisterHandle registerBuffer(uint32_t num) noexcept;
+    [[nodiscard]] Handle allocate(uint32_t num) noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	インデックスを指定してハンドルを取得する
+     * @param	index		インデックス
+     * @return	CPU と GPU のディスクリプタハンドル
+     */
+    [[nodiscard]] Handle handleFromIndex(uint32_t index) noexcept;
 
     //---------------------------------------------------------------------------------
     /**
@@ -67,6 +85,6 @@ private:
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap_{};          ///< ディスクリプタヒープ
     uint32_t                                     currentIndex_{};  ///< 現在の登録番号
     uint32_t                                     capacity_{};      ///< 最大管理数
-    D3D12_DESCRIPTOR_HEAP_DESC                   desc_{};		   ///< ディスクリプタヒープフォーマット情報
+    D3D12_DESCRIPTOR_HEAP_DESC                   desc_{};          ///< ディスクリプタヒープフォーマット情報
 };
 }  // namespace dx12

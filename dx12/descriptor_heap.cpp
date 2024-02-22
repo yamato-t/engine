@@ -8,16 +8,17 @@ namespace dx12 {
  * @brief	ディスクリプタヒープを生成する
  * @param	type			ヒープが管理する対象の種類
  * @param	capacity		最大管理数
- * @param	flags			フラグ設定
  * @return	作成に成功した場合は true
  */
-bool DescriptorHeap::create(uint32_t type, uint32_t capacity, uint32_t flags) noexcept {
-    // ディスクリプタヒープ作成
-    desc_ = {};
 
+bool DescriptorHeap::create(Type type, uint32_t capacity) noexcept {
+    auto flag = type == Type::CBV_SRV_UAV ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
+                                          : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    // ディスクリプタヒープ作成
+    desc_                = {};
     desc_.Type           = static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(type);
     desc_.NumDescriptors = capacity;
-    desc_.Flags          = static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(flags);
+    desc_.Flags          = flag;
 
     auto res = dx12::Device::instance().device()->CreateDescriptorHeap(
         &desc_,
@@ -27,7 +28,7 @@ bool DescriptorHeap::create(uint32_t type, uint32_t capacity, uint32_t flags) no
         ASSERT(false, "ディスクリプタヒープの作成に失敗");
         return false;
     }
-    heap_->SetName(std::format(L"DescriptorHeap type:{} capacity:{} flags:{} ", type, capacity, flags).data());
+    heap_->SetName(std::format(L"DescriptorHeap type:{} capacity:{} ", static_cast<uint32_t>(type), capacity).data());
 
     capacity_ = capacity;
     return true;
@@ -35,23 +36,38 @@ bool DescriptorHeap::create(uint32_t type, uint32_t capacity, uint32_t flags) no
 
 //---------------------------------------------------------------------------------
 /**
- * @brief	ヒープにバッファを登録する
- * @param	num			登録数
- * @return	登録ハンドル
+ * @brief	ヒープから指定数を確保する
+ * @param	num			確保数
+ * @return	CPU と GPU のディスクリプタハンドル
  */
-DescriptorHeap::RegisterHandle DescriptorHeap::registerBuffer(uint32_t num) noexcept {
-    const auto size = dx12::Device::instance().device()->GetDescriptorHandleIncrementSize(desc_.Type);
+DescriptorHeap::Handle DescriptorHeap::allocate(uint32_t num) noexcept {
 
-    auto cpuHandle = heap_->GetCPUDescriptorHandleForHeapStart();
-    auto gpuHandle = heap_->GetGPUDescriptorHandleForHeapStart();
-
-    auto temp = currentIndex_;
-    cpuHandle.ptr += (currentIndex_ * size);
-    gpuHandle.ptr += (currentIndex_ * size);
-
+	const auto temp = currentIndex_;
     currentIndex_ += num;
 
-    return {temp, cpuHandle.ptr, gpuHandle.ptr, size};
+	return handleFromIndex(temp);
+}
+
+//---------------------------------------------------------------------------------
+/**
+ * @brief	インデックスを指定してハンドルを取得する
+ * @param	index		インデックス
+ * @return	CPU と GPU のディスクリプタハンドル
+ */
+DescriptorHeap::Handle DescriptorHeap::handleFromIndex(uint32_t index) noexcept {
+
+	const auto size = dx12::Device::instance().device()->GetDescriptorHandleIncrementSize(desc_.Type);
+
+    auto cpuHandle = heap_->GetCPUDescriptorHandleForHeapStart();
+    cpuHandle.ptr += (index * size);
+
+	D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle{};
+	if (desc_.Flags == D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE) {
+        gpuHandle = heap_->GetGPUDescriptorHandleForHeapStart();
+        gpuHandle.ptr += (index * size);    
+	}
+
+    return {index, cpuHandle, gpuHandle, size};
 }
 
 //---------------------------------------------------------------------------------
