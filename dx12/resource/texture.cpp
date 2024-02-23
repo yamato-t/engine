@@ -80,13 +80,14 @@ bool TextureResource::create(std::string_view path) noexcept {
 //---------------------------------------------------------------------------------
 /**
  * @brief    テクスチャを引数から作成する
- * @param    w h            横と縦のサイズ
+ * @param    w h         横と縦のサイズ
  * @param    mipLevel    ミップマップレベル
- * @param    arraySize    テクスチャ配列サイズ
- * @param    format        テクスチャフォーマット
+ * @param    arraySize   テクスチャ配列サイズ
+ * @param    format      テクスチャフォーマット
+ * @param    color       初期カラー
  * @return    成功した場合は true
  */
-bool TextureResource::create(uint32_t w, uint32_t h, uint32_t mipLevel, uint32_t arraySize, DXGI_FORMAT format) noexcept {
+bool TextureResource::create(uint32_t w, uint32_t h, uint32_t mipLevel, uint32_t arraySize, DXGI_FORMAT format, const float color[4]) noexcept {
     // GPU リソースの作成
     CD3DX12_RESOURCE_DESC desc(
         D3D12_RESOURCE_DIMENSION_TEXTURE2D,
@@ -104,10 +105,10 @@ bool TextureResource::create(uint32_t w, uint32_t h, uint32_t mipLevel, uint32_t
 
     D3D12_CLEAR_VALUE clearValue;
     clearValue.Format   = desc.Format;
-    clearValue.Color[0] = 1.0f;
-    clearValue.Color[1] = 0.0f;
-    clearValue.Color[2] = 0.0f;
-    clearValue.Color[3] = 1.0f;
+    clearValue.Color[0] = color[0];
+    clearValue.Color[1] = color[1];
+    clearValue.Color[2] = color[2];
+    clearValue.Color[3] = color[3];
 
     Device::instance().device()->CreateCommittedResource(
         &prop,

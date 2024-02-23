@@ -42,9 +42,10 @@ public:
      * @param    mipLevel    ミップマップレベル
      * @param    arraySize   テクスチャ配列サイズ
      * @param    format      テクスチャフォーマット
+     * @param    color       初期カラー
      * @return    成功した場合は true
      */
-    bool create(uint32_t w, uint32_t h, uint32_t mipLevel, uint32_t arraySize, DXGI_FORMAT format) noexcept;
+    bool create(uint32_t w, uint32_t h, uint32_t mipLevel, uint32_t arraySize, DXGI_FORMAT format, const float color[4] = {}) noexcept;
 };
 
 //---------------------------------------------------------------------------------
