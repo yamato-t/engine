@@ -18,7 +18,7 @@ public:
     /**
      * @brief    コンストラクタ
      */
-    RenderTarget() = default;
+    RenderTarget() { resource_ = std::make_unique<TextureResource>(); }
 
     //---------------------------------------------------------------------------------
     /**
@@ -38,21 +38,39 @@ public:
 
     //---------------------------------------------------------------------------------
     /**
-     * @brief    レンダーターゲットを開始する
+     * @brief	ビューを生成する
+     * @param	descriptorHeap	ビュー（ディスクリプタ）登録先のヒープ
+     */
+    void createView(DescriptorHeap& descriptorHeap) noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	コマンドリストに設定する
+     * @param	commandList				設定先のコマンドリスト
+     * @param	rootParameterIndex		ルートパラメータのインデックス
+     */
+    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	レンダーターゲットへのレンダリングを開始する
      * @param    commandList    利用するコマンドリスト
      */
     void startRendering(CommandList& commandList) noexcept;
 
     //---------------------------------------------------------------------------------
     /**
-     * @brief    レンダーターゲットを終了する
+     * @brief	レンダーターゲットへのレンダリングを終了する
      * @param    commandList    利用するコマンドリスト
      */
     void finishRendering(CommandList& commandList) noexcept;
 
 public:
-    dx12::DescriptorHeap      descriptorHeap_{};  ///< ディスクリプタヒープ
-    resource::TextureResource texture_{};         ///< テクスチャ
-    resource::DepthStencil    depthStencil_{};    ///< デプスステンシル
+    std::unique_ptr<TextureResource> resource_{};  ///< リソース
+    DescriptorHeap::Handle           handle_{};    ///< ヒープ登録ハンドル
+
+    dx12::DescriptorHeap   rtvDescriptorHeap_{};  ///< RTV用ディスクリプタヒープ
+    DescriptorHeap::Handle rtvHandle_{};          ///< RTV用ヒープ登録ハンドル
+    resource::DepthStencil depthStencil_{};       ///< デプスステンシル
 };
 }  // namespace dx12::resource
