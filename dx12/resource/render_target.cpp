@@ -62,33 +62,6 @@ bool RenderTarget::create(uint32_t w, uint32_t h, uint32_t num, DXGI_FORMAT form
 
 //---------------------------------------------------------------------------------
 /**
- * @brief	ビューを生成する
- * @param	descriptorHeap	ビュー（ディスクリプタ）登録先のヒープ
- */
-void RenderTarget::createView(DescriptorHeap& descriptorHeap) noexcept {
-    handle_ = descriptorHeap.allocate(1);
-
-    D3D12_SHADER_RESOURCE_VIEW_DESC sdesc = {};
-    sdesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    sdesc.Format                          = resource_->desc().Format;
-    sdesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
-    sdesc.Texture2D.MipLevels             = resource_->desc().MipLevels;
-
-    Device::instance().device()->CreateShaderResourceView(resource_->get(), &sdesc, handle_.cpuHandle_);
-}
-
-//---------------------------------------------------------------------------------
-/**
- * @brief	コマンドリストに設定する
- * @param	commandList				設定先のコマンドリスト
- * @param	rootParameterIndex		ルートパラメータのインデックス
- */
-void RenderTarget::setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept {
-    commandList.get()->SetGraphicsRootDescriptorTable(rootParameterIndex, handle_.gpuHandle_);
-}
-
-//---------------------------------------------------------------------------------
-/**
  * @brief	レンダーターゲットへのレンダリングを開始する
  * @param	commandList	利用するコマンドリスト
  */
@@ -131,6 +104,33 @@ void RenderTarget::startRendering(CommandList& commandList) noexcept {
  */
 void RenderTarget::finishRendering(CommandList& commandList) noexcept {
     resourceBarrier(commandList, resource_->get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+}
+
+//---------------------------------------------------------------------------------
+/**
+ * @brief	ビューを生成する
+ * @param	descriptorHeap	ビュー（ディスクリプタ）登録先のヒープ
+ */
+void RenderTarget::createView(DescriptorHeap& descriptorHeap) noexcept {
+    handle_ = descriptorHeap.allocate(1);
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC sdesc = {};
+    sdesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    sdesc.Format                          = resource_->desc().Format;
+    sdesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
+    sdesc.Texture2D.MipLevels             = resource_->desc().MipLevels;
+
+    Device::instance().device()->CreateShaderResourceView(resource_->get(), &sdesc, handle_.cpuHandle_);
+}
+
+//---------------------------------------------------------------------------------
+/**
+ * @brief	コマンドリストに設定する
+ * @param	commandList				設定先のコマンドリスト
+ * @param	args					コマンドリスト設定時の引数
+ */
+void RenderTarget::setToCommandList(CommandList& commandList, const Args& agrs) noexcept {
+    commandList.get()->SetGraphicsRootDescriptorTable(agrs.rootParameterIndex_, handle_.gpuHandle_);
 }
 
 }  // namespace dx12::resource

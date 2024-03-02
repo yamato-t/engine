@@ -147,14 +147,14 @@ void Texture::createView(DescriptorHeap& descriptorHeap) noexcept {
     Device::instance().device()->CreateShaderResourceView(resource_->get(), &sdesc, handle_.cpuHandle_);
 }
 
-//---------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------
 /**
  * @brief	コマンドリストに設定する
  * @param	commandList				設定先のコマンドリスト
- * @param	rootParameterIndex		ルートパラメータのインデックス
+ * @param	args					コマンドリスト設定時の引数
  */
-void Texture::setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept {
-    commandList.get()->SetGraphicsRootDescriptorTable(rootParameterIndex, handle_.gpuHandle_);
+void Texture::setToCommandList(CommandList& commandList, const Args& args) noexcept {
+    commandList.get()->SetGraphicsRootDescriptorTable(args.rootParameterIndex_, handle_.gpuHandle_);
 }
 
 }  // namespace dx12::resource

@@ -90,6 +90,9 @@
     <ClInclude Include="dx12\resource\render_target.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="dx12\resource\gpu_obj.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dx12\command_list.cpp">

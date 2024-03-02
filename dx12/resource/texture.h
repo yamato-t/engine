@@ -5,6 +5,7 @@
 #include "dx12/command_list.h"
 #include "dx12/descriptor_heap.h"
 #include "dx12/resource/gpu_resource.h"
+#include "dx12/resource/gpu_obj.h"
 
 namespace dx12::resource {
 
@@ -53,7 +54,7 @@ public:
  * @brief
  * テクスチャ
  */
-class Texture final : public utility::Noncopyable {
+class Texture final : public GpuObj {
 public:
     //---------------------------------------------------------------------------------
     /**
@@ -99,20 +100,21 @@ public:
         return resource_->create(w, h, mipLevel, arraySize, format);
     }
 
+public:
     //---------------------------------------------------------------------------------
     /**
      * @brief	ビューを生成する
      * @param	descriptorHeap	ビュー（ディスクリプタ）登録先のヒープ
      */
-    void createView(DescriptorHeap& descriptorHeap) noexcept;
+    void createView(DescriptorHeap& descriptorHeap) noexcept override final;
 
     //---------------------------------------------------------------------------------
     /**
      * @brief	コマンドリストに設定する
      * @param	commandList				設定先のコマンドリスト
-     * @param	rootParameterIndex		ルートパラメータのインデックス
+     * @param	args					コマンドリスト設定時の引数
      */
-    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept;
+    void setToCommandList(CommandList& commandList, const Args& args) noexcept override final;
 
 private:
     std::unique_ptr<TextureResource> resource_{};  ///< リソース

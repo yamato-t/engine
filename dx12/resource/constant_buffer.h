@@ -4,6 +4,7 @@
 #include "dx12/command_list.h"
 #include "dx12/descriptor_heap.h"
 #include "dx12/resource/gpu_resource.h"
+#include "dx12/resource/gpu_obj.h"
 
 namespace dx12::resource {
 
@@ -53,7 +54,7 @@ private:
  * コンスタントバッファ
  */
 template <class T, uint32_t Num>
-class ConstantBuffer final : public utility::Noncopyable {
+class ConstantBuffer final : public GpuObj {
 private:
     using type = T;
 
@@ -94,10 +95,22 @@ public:
 
     //---------------------------------------------------------------------------------
     /**
+     * @brief	コンスタントバッファのデータを取得する
+     * @param	index			データインデックス
+     * @return	データの参照
+     */
+    type& operator[](uint32_t index) const noexcept {
+        auto* address = reinterpret_cast<byte*>(data_) + resource_->offset(index);
+        return *(reinterpret_cast<type*>(address));
+    }
+
+public:
+    //---------------------------------------------------------------------------------
+    /**
      * @brief	ビューを生成する
      * @param	descriptorHeap	ビュー（ディスクリプタ）登録先のヒープ
      */
-    void createView(DescriptorHeap& descriptorHeap) noexcept {
+    void createView(DescriptorHeap& descriptorHeap) noexcept override final {
         // ヒープ登録ハンドルを取得する
         handle_ = descriptorHeap.allocate(resource_->num());
 
@@ -115,25 +128,13 @@ public:
     //---------------------------------------------------------------------------------
     /**
      * @brief	コマンドリストに設定する
-     * @param	commandList			設定先のコマンドリスト
-     * @param	rootParameterIndex	ルートパラメータのインデックス
-     * @param	index				コンスタントバッファのインデックス
+     * @param	commandList				設定先のコマンドリスト
+     * @param	args					コマンドリスト設定時の引数
      */
-    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex, uint32_t index) noexcept {
+    void setToCommandList(CommandList& commandList, const Args& args) noexcept override final {
         D3D12_GPU_DESCRIPTOR_HANDLE handle{};
-        handle.ptr = handle_.gpuHandle_.ptr + (index * handle_.incrementSize_);
-        commandList.get()->SetGraphicsRootDescriptorTable(rootParameterIndex, handle);
-    }
-
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	コンスタントバッファのデータを取得する
-     * @param	index			データインデックス
-     * @return	データの参照
-     */
-    type& operator[](uint32_t index) const noexcept {
-        auto* address = reinterpret_cast<byte*>(data_) + resource_->offset(index);
-        return *(reinterpret_cast<type*>(address));
+        handle.ptr = handle_.gpuHandle_.ptr + (args.handleIndex_ * handle_.incrementSize_);
+        commandList.get()->SetGraphicsRootDescriptorTable(args.rootParameterIndex_, handle);
     }
 
 private:

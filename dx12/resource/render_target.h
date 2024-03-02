@@ -4,6 +4,7 @@
 #include "dx12/resource/depth_stencil.h"
 #include "dx12/resource/texture.h"
 #include "utility/noncopyable.h"
+#include "dx12/resource/gpu_obj.h"
 
 namespace dx12::resource {
 
@@ -12,7 +13,7 @@ namespace dx12::resource {
  * @brief
  * レンダーターゲット
  */
-class RenderTarget final : public utility::Noncopyable {
+class RenderTarget final : public GpuObj {
 public:
     //---------------------------------------------------------------------------------
     /**
@@ -38,21 +39,6 @@ public:
 
     //---------------------------------------------------------------------------------
     /**
-     * @brief	ビューを生成する
-     * @param	descriptorHeap	ビュー（ディスクリプタ）登録先のヒープ
-     */
-    void createView(DescriptorHeap& descriptorHeap) noexcept;
-
-    //---------------------------------------------------------------------------------
-    /**
-     * @brief	コマンドリストに設定する
-     * @param	commandList				設定先のコマンドリスト
-     * @param	rootParameterIndex		ルートパラメータのインデックス
-     */
-    void setToCommandList(CommandList& commandList, uint32_t rootParameterIndex) noexcept;
-
-    //---------------------------------------------------------------------------------
-    /**
      * @brief	レンダーターゲットへのレンダリングを開始する
      * @param    commandList    利用するコマンドリスト
      */
@@ -64,6 +50,23 @@ public:
      * @param    commandList    利用するコマンドリスト
      */
     void finishRendering(CommandList& commandList) noexcept;
+
+public:
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	ビューを生成する
+     * @param	descriptorHeap	ビュー（ディスクリプタ）登録先のヒープ
+     */
+    void createView(DescriptorHeap& descriptorHeap) noexcept override final;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	コマンドリストに設定する
+     * @param	commandList				設定先のコマンドリスト
+     * @param	args					コマンドリスト設定時の引数
+     */
+    void setToCommandList(CommandList& commandList, const Args& agrs) noexcept override final;
+
 
 public:
     std::unique_ptr<TextureResource> resource_{};  ///< リソース

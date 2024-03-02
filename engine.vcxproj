@@ -172,6 +172,7 @@
     <ClInclude Include="dx12\resource\constant_buffer.h" />
     <ClInclude Include="dx12\resource\depth_stencil.h" />
     <ClInclude Include="dx12\resource\frame_buffer.h" />
+    <ClInclude Include="dx12\resource\gpu_obj.h" />
     <ClInclude Include="dx12\resource\gpu_resource.h" />
     <ClInclude Include="dx12\resource\mesh.h" />
     <ClInclude Include="dx12\resource\render_target.h" />
