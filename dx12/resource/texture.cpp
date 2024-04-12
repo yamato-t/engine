@@ -147,7 +147,7 @@ void Texture::createView(DescriptorHeap& descriptorHeap) noexcept {
     Device::instance().device()->CreateShaderResourceView(resource_->get(), &sdesc, handle_.cpuHandle_);
 }
 
-    //---------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
 /**
  * @brief	コマンドリストに設定する
  * @param	commandList				設定先のコマンドリスト

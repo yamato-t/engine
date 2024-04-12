@@ -182,6 +182,7 @@
     <ClInclude Include="utility\log.h" />
     <ClInclude Include="utility\noncopyable.h" />
     <ClInclude Include="utility\singleton.h" />
+    <ClInclude Include="utility\spin_lock.h" />
     <ClInclude Include="utility\thread.h" />
     <ClInclude Include="utility\time_counter.h" />
     <ClInclude Include="window\window.h" />

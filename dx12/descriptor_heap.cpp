@@ -41,11 +41,10 @@ bool DescriptorHeap::create(Type type, uint32_t capacity) noexcept {
  * @return	CPU と GPU のディスクリプタハンドル
  */
 DescriptorHeap::Handle DescriptorHeap::allocate(uint32_t num) noexcept {
-
-	const auto temp = currentIndex_;
+    const auto temp = currentIndex_;
     currentIndex_ += num;
 
-	return handleFromIndex(temp);
+    return handleFromIndex(temp);
 }
 
 //---------------------------------------------------------------------------------
@@ -55,17 +54,16 @@ DescriptorHeap::Handle DescriptorHeap::allocate(uint32_t num) noexcept {
  * @return	CPU と GPU のディスクリプタハンドル
  */
 DescriptorHeap::Handle DescriptorHeap::handleFromIndex(uint32_t index) noexcept {
-
-	const auto size = dx12::Device::instance().device()->GetDescriptorHandleIncrementSize(desc_.Type);
+    const auto size = dx12::Device::instance().device()->GetDescriptorHandleIncrementSize(desc_.Type);
 
     auto cpuHandle = heap_->GetCPUDescriptorHandleForHeapStart();
     cpuHandle.ptr += (index * size);
 
-	D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle{};
-	if (desc_.Flags == D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE) {
+    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle{};
+    if (desc_.Flags == D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE) {
         gpuHandle = heap_->GetGPUDescriptorHandleForHeapStart();
-        gpuHandle.ptr += (index * size);    
-	}
+        gpuHandle.ptr += (index * size);
+    }
 
     return {index, cpuHandle, gpuHandle, size};
 }

@@ -93,6 +93,9 @@
     <ClInclude Include="dx12\resource\gpu_obj.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="utility\spin_lock.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dx12\command_list.cpp">

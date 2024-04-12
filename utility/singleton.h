@@ -2,59 +2,56 @@
 
 namespace utility {
 
-	//---------------------------------------------------------------------------------
-	/**
-	 * @brief
-	 * シングルトン化制御
-	 *
-	 * このクラスを継承したクラスをシングルトン化させる
-	 */
-	template <class T>
-	class Singleton {
+//---------------------------------------------------------------------------------
+/**
+ * @brief
+ * シングルトン化制御
+ *
+ * このクラスを継承したクラスをシングルトン化させる
+ */
+template <class T>
+class Singleton {
+public:
+    using instance_ptr = std::unique_ptr<T>;
 
-	public:
-		using instance_ptr = std::unique_ptr<T>;
+public:
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	シングルトンインスタンスを取得する
+     * @return	シングルトンインスタンス
+     */
+    static T& instance() noexcept {
+        if (!instance_) {
+            instance_.reset(new T());
+        }
+        return *instance_;
+    }
 
-	public:
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	シングルトンインスタンスを破棄する
+     */
+    static void release() noexcept {
+        instance_.reset();
+    }
 
-		//---------------------------------------------------------------------------------
-		/**
-		 * @brief	シングルトンインスタンスを取得する
-		 * @return	シングルトンインスタンス
-		 */
-		static T& instance() noexcept {
-			if (!instance_) {
-				instance_.reset(new T());
-			}
-			return *instance_;
-		}
+protected:
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	コンストラクタ
+     */
+    Singleton() noexcept = default;
 
-		//---------------------------------------------------------------------------------
-		/**
-		 * @brief	シングルトンインスタンスを破棄する
-		 */
-		static void release() noexcept {
-			instance_.reset();
-		}
+private:
+    Singleton(const Singleton& r)                = delete;
+    Singleton& operator=(const Singleton& r)     = delete;
+    Singleton(Singleton&& r) noexcept            = delete;
+    Singleton& operator=(Singleton&& r) noexcept = delete;
 
-	protected:
-		//---------------------------------------------------------------------------------
-		/**
-		 * @brief	コンストラクタ
-		 */
-		Singleton() noexcept = default;
+private:
+    static instance_ptr instance_;  ///< インスタンス
+};
 
-	private:
-		Singleton(const Singleton& r) = delete;
-		Singleton& operator=(const Singleton& r) = delete;
-		Singleton(Singleton&& r) noexcept = delete;
-		Singleton& operator=(Singleton&& r) noexcept = delete;
-
-	private:
-		static instance_ptr instance_;		///< インスタンス
-	};
-
-	template <class T> typename Singleton<T>::instance_ptr Singleton<T>::instance_;
-}
-
-
+template <class T>
+typename Singleton<T>::instance_ptr Singleton<T>::instance_;
+}  // namespace utility
