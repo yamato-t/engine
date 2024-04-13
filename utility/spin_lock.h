@@ -23,15 +23,16 @@ public:
     /**
      * @brief	デストラクタ
      */
-    ~SharedSpinLock() = delete;
+    ~SharedSpinLock() = default;
 
     //---------------------------------------------------------------------------------
     /**
      * @brief	排他ロック ( unique_lock ) を取得する
      */
     void lock() noexcept {
-        int32_t expected = 0;
-        while (!state_.compare_exchange_weak(expected, -1)) {
+        int32_t e = 0;
+        while (!state_.compare_exchange_weak(e, -1)) {
+            e = 0;
             _mm_pause();
         }
     }
@@ -49,8 +50,15 @@ public:
      * @brief	共有ロック ( shared_lock ) を取得する
      */
     void lockShared() noexcept {
-        int32_t expected = state_.load();
-        while ((expected < 0) || !state_.compare_exchange_weak(expected, expected + 1)) {
+        int32_t e = 0;
+        int32_t d = e + 1;
+
+        while (!state_.compare_exchange_weak(e, d)) {
+            if (e < 0) {
+                // 排他ロック中なのでリセット
+                e = 0;
+            }
+            d = e + 1;
             _mm_pause();
         }
     }
@@ -62,7 +70,6 @@ public:
     void unlockShared() noexcept {
         state_.fetch_sub(1);
     }
-
 
 private:
     std::atomic<int32_t> state_{};
