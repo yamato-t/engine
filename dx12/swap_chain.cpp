@@ -63,7 +63,10 @@ public:
      * @brief	プレゼンテーション
      */
     void present() noexcept {
-        swapChain_->Present(0, 0);
+
+		// auto flag = DXGI_PRESENT_ALLOW_TEARING; // VSync を無視する
+        auto flag = 0;
+        swapChain_->Present(0, flag);
     }
 
 private:
@@ -86,6 +89,8 @@ private:
         desc.AlphaMode             = DXGI_ALPHA_MODE_UNSPECIFIED;
         desc.Scaling               = DXGI_SCALING_STRETCH;
         desc.Stereo                = false;
+        desc.Flags                 = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;  // VSync を無視できるように
+
 
         auto res = Device::instance().dxgiFactory()->CreateSwapChainForHwnd(
             commandQueue.get(),
