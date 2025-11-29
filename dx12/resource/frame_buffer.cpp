@@ -6,7 +6,9 @@ namespace dx12::resource {
 
 namespace {
 constexpr float clearColor[] = {0.5f, 0.5f, 0.5f, 1.0f};  ///< 画面をクリアする際の色
-}
+uint64_t        frameBufferWidth{};
+uint64_t        frameBufferHight{};
+}  // namespace
 
 namespace {
 //---------------------------------------------------------------------------------
@@ -66,6 +68,9 @@ bool FrameBuffer::createView(IDXGISwapChain3* swapChain) noexcept {
         Device::instance().device()->CreateRenderTargetView(resources_[i].Get(), nullptr, handle);
     }
 
+    frameBufferWidth = resources_[0]->GetDesc().Width;
+    frameBufferHight = resources_[0]->GetDesc().Height;
+
     // デプスステンシル
     if (!depthStencil_.create()) {
         ASSERT(false, "デプスステンシル作成に失敗");
@@ -107,8 +112,8 @@ void FrameBuffer::setToRenderTarget(CommandList& commandList) noexcept {
     D3D12_VIEWPORT viewport = {};
     viewport.TopLeftX       = 0.0f;
     viewport.TopLeftY       = 0.0f;
-    viewport.Width          = static_cast<float>(window::width());
-    viewport.Height         = static_cast<float>(window::height());
+    viewport.Width          = static_cast<float>(frameBufferWidth);
+    viewport.Height         = static_cast<float>(frameBufferHight);
     viewport.MinDepth       = D3D12_MIN_DEPTH;
     viewport.MaxDepth       = D3D12_MAX_DEPTH;
     commandList.get()->RSSetViewports(1, &viewport);
@@ -117,8 +122,8 @@ void FrameBuffer::setToRenderTarget(CommandList& commandList) noexcept {
     D3D12_RECT rect = {};
     rect.left       = 0;
     rect.top        = 0;
-    rect.right      = window::width();
-    rect.bottom     = window::height();
+    rect.right      = frameBufferWidth;
+    rect.bottom     = frameBufferHight;
     commandList.get()->RSSetScissorRects(1, &rect);
 }
 

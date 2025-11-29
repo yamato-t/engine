@@ -79,8 +79,8 @@ private:
     bool createSwapChain(const CommandQueue& commandQueue) noexcept {
         DXGI_SWAP_CHAIN_DESC1 desc = {};
         desc.BufferCount           = frameBufferNum_;
-        desc.Width                 = window::width();
-        desc.Height                = window::height();
+        desc.Width                 = 0;
+        desc.Height                = 0;
         desc.Format                = DXGI_FORMAT_R8G8B8A8_UNORM;
         desc.BufferUsage           = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         desc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
