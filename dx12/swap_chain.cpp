@@ -63,10 +63,14 @@ public:
      * @brief	プレゼンテーション
      */
     void present() noexcept {
+        // 可変リフレッシュレート
+        // const auto sync = 0;                           // VSync を無視する
+        // const auto flag = DXGI_PRESENT_ALLOW_TEARING;  // ティアリング許可
 
-		// auto flag = DXGI_PRESENT_ALLOW_TEARING; // VSync を無視する
-        auto flag = 0;
-        swapChain_->Present(0, flag);
+        // VSync 有効
+        const auto sync = 1;  // VSync を有効にする（モニター依存）
+        const auto flag = 0;
+        swapChain_->Present(sync, flag);
     }
 
 private:
@@ -90,7 +94,6 @@ private:
         desc.Scaling               = DXGI_SCALING_STRETCH;
         desc.Stereo                = false;
         desc.Flags                 = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;  // VSync を無視できるように
-
 
         auto res = Device::instance().dxgiFactory()->CreateSwapChainForHwnd(
             commandQueue.get(),
