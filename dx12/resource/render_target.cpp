@@ -38,7 +38,7 @@ void resourceBarrier(CommandList& commandList, ID3D12Resource* resource, D3D12_R
  * @param	format		フォーマット
  * @return	成功した場合は true
  */
-bool RenderTarget::create(uint32_t w, uint32_t h, uint32_t num, DXGI_FORMAT format) noexcept {
+bool RenderTarget::create(uint32_t w, uint32_t h, DXGI_FORMAT format) noexcept {
     // テクスチャリソースの作成
     if (!resource_->create(w, h, 1, 1, format, defaultClearColor)) {
         ASSERT(false, "RTV テクスチャリソースの作成に失敗しました");
@@ -46,8 +46,8 @@ bool RenderTarget::create(uint32_t w, uint32_t h, uint32_t num, DXGI_FORMAT form
     }
 
     // RTV デスクリプタヒープを作成
-    rtvDescriptorHeap_.create(dx12::DescriptorHeap::Type::RTV, num);
-    rtvHandle_ = rtvDescriptorHeap_.allocate(num);
+    rtvDescriptorHeap_.create(dx12::DescriptorHeap::Type::RTV, 1);
+    rtvHandle_ = rtvDescriptorHeap_.allocate();
     // RTV ディスクリプタ作成
     Device::instance().device()->CreateRenderTargetView(resource_->get(), nullptr, rtvHandle_.cpuHandle_);
 
@@ -112,7 +112,7 @@ void RenderTarget::finishRendering(CommandList& commandList) noexcept {
  * @param	descriptorHeap	ビュー（ディスクリプタ）登録先のヒープ
  */
 void RenderTarget::createView(DescriptorHeap& descriptorHeap) noexcept {
-    handle_ = descriptorHeap.allocate(1);
+    handle_ = descriptorHeap.allocate();
 
     D3D12_SHADER_RESOURCE_VIEW_DESC sdesc = {};
     sdesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;

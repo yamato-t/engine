@@ -136,7 +136,7 @@ bool TextureResource::create(uint32_t w, uint32_t h, uint32_t mipLevel, uint32_t
  */
 void Texture::createView(DescriptorHeap& descriptorHeap) noexcept {
     // ヒープ登録ハンドルを取得する
-    handle_ = descriptorHeap.allocate(1);
+    handle_ = descriptorHeap.allocate();
 
     D3D12_SHADER_RESOURCE_VIEW_DESC sdesc = {};
     sdesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;

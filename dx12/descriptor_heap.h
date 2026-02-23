@@ -36,6 +36,15 @@ public:
         uint32_t                    incrementSize_{};
     };
 
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	解放予定のディスクリプタ情報
+     */
+    struct PendingFree {
+        uint32_t index_{};
+        uint8_t  waitFrame_{};
+    };
+
 public:
     //---------------------------------------------------------------------------------
     /**
@@ -60,19 +69,31 @@ public:
 
     //---------------------------------------------------------------------------------
     /**
-     * @brief	ヒープから指定数を確保する
-     * @param	num			確保数
-     * @return	CPU と GPU のディスクリプタハンドル
+     * @brief	解放予定のディスクリプタを解放する
      */
-    [[nodiscard]] Handle allocate(uint32_t num) noexcept;
+    void applyFree() noexcept;
 
     //---------------------------------------------------------------------------------
     /**
-     * @brief	インデックスを指定してハンドルを取得する
-     * @param	index		インデックス
+     * @brief	ディスクリプタを確保する
      * @return	CPU と GPU のディスクリプタハンドル
      */
-    [[nodiscard]] Handle handleFromIndex(uint32_t index) noexcept;
+    [[nodiscard]] Handle allocate() noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	ヒープから指定数を確保する
+     * @param	handle 解放するディスクリプタのハンドル
+     */
+    void free(const Handle& handle) noexcept;
+
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	ディスクリプタを指定数を確保する
+     * @param	num			確保数
+     * @return	CPU と GPU のディスクリプタハンドルリスト
+     */
+    [[nodiscard]] std::vector<Handle> allocate(uint32_t num) noexcept;
 
     //---------------------------------------------------------------------------------
     /**
@@ -82,9 +103,20 @@ public:
     void setToCommandList(dx12::CommandList& commandList) noexcept;
 
 private:
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap_{};          ///< ディスクリプタヒープ
-    uint32_t                                     currentIndex_{};  ///< 現在の登録番号
-    uint32_t                                     capacity_{};      ///< 最大管理数
-    D3D12_DESCRIPTOR_HEAP_DESC                   desc_{};          ///< ディスクリプタヒープフォーマット情報
+    //---------------------------------------------------------------------------------
+    /**
+     * @brief	インデックスを指定してハンドルを取得する
+     * @param	index		インデックス
+     * @return	CPU と GPU のディスクリプタハンドル
+     */
+    [[nodiscard]] Handle handleFromIndex(uint32_t index) noexcept;
+
+private:
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap_{};      ///< ディスクリプタヒープ
+    uint32_t                                     capacity_{};  ///< 最大管理数
+    D3D12_DESCRIPTOR_HEAP_DESC                   desc_{};      ///< ディスクリプタヒープフォーマット情報
+
+    std::vector<uint32_t>    freeIndex_{};    ///< 空いているインデックス
+    std::vector<PendingFree> pendingFree_{};  ///< 解放予定のディスクリプタ情報
 };
 }  // namespace dx12

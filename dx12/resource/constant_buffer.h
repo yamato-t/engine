@@ -72,10 +72,10 @@ public:
     ConstantBuffer(ConstantBuffer&& src) noexcept {
         resource_ = std::move(src.resource_);
         data_     = src.data_;
-        handle_   = src.handle_;
+        handles_  = std::move(src.handles_);
 
         src.data_   = {};
-        src.handle_ = {};
+        src.handles_.clear();
     }
 
     //---------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ public:
      */
     void createView(DescriptorHeap& descriptorHeap) noexcept override final {
         // ヒープ登録ハンドルを取得する
-        handle_ = descriptorHeap.allocate(resource_->num());
+        handles_ = descriptorHeap.allocate(resource_->num());
 
         for (auto i = 0; i < resource_->num(); ++i) {
             D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc{};
@@ -120,7 +120,7 @@ public:
             cbvDesc.SizeInBytes    = resource_->stride();
 
             D3D12_CPU_DESCRIPTOR_HANDLE handle{};
-            handle.ptr = handle_.cpuHandle_.ptr + (i * handle_.incrementSize_);
+            handle.ptr = handles_[i].cpuHandle_.ptr;
             dx12::Device::instance().device()->CreateConstantBufferView(&cbvDesc, handle);
         }
     }
@@ -132,8 +132,10 @@ public:
      * @param	args					コマンドリスト設定時の引数
      */
     void setToCommandList(CommandList& commandList, const Args& args) noexcept override final {
+        const auto i = args.handleIndex_;
+
         D3D12_GPU_DESCRIPTOR_HANDLE handle{};
-        handle.ptr = handle_.gpuHandle_.ptr + (args.handleIndex_ * handle_.incrementSize_);
+        handle.ptr = handles_[i].gpuHandle_.ptr;
         commandList.get()->SetGraphicsRootDescriptorTable(args.rootParameterIndex_, handle);
     }
 
@@ -150,6 +152,6 @@ private:
 private:
     std::unique_ptr<ConstantBufferResource> resource_{};  ///< コンスタントバッファGPUリソース
     type*                                   data_{};      ///< CPUで内容を変更する際のアクセス先アドレス
-    DescriptorHeap::Handle                  handle_{};    ///< ヒープ登録ハンドル
+    std::vector<DescriptorHeap::Handle>     handles_{};   ///< ヒープ登録ハンドルリスト
 };
 }  // namespace dx12::resource

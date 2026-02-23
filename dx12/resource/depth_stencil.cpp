@@ -70,7 +70,7 @@ bool DepthStencil::create() noexcept {
  */
 void DepthStencil::createView(DescriptorHeap& descriptorHeap) noexcept {
     // ハンドルを取得する
-    handle_ = descriptorHeap.allocate(1);
+    handle_ = descriptorHeap.allocate();
 
     // ディスクリプタを作成
     dx12::Device::instance().device()->CreateDepthStencilView(resource_->get(), nullptr, handle_.cpuHandle_);

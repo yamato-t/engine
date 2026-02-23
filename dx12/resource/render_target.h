@@ -35,7 +35,7 @@ public:
      * @param    format        フォーマット
      * @return    成功した場合は true
      */
-    bool create(uint32_t w, uint32_t h, uint32_t num, DXGI_FORMAT format) noexcept;
+    bool create(uint32_t w, uint32_t h, DXGI_FORMAT format) noexcept;
 
     //---------------------------------------------------------------------------------
     /**
